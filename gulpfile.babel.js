@@ -13,7 +13,8 @@ gulp.task('extras', () => {
     'app/_locales/**',
     '!app/scripts.babel',
     '!app/*.json',
-    '!app/*.html'
+    '!app/*.html',
+    '!app/styles.scss'
   ], {
     base: 'app',
     dot: true
@@ -50,8 +51,8 @@ gulp.task('images', () => {
     .pipe(gulp.dest('dist/images'));
 });
 
-gulp.task('html',  () => {
-  return gulp.src('app/*.html')
+gulp.task('html',['styles'],  () => {
+  return gulp.src(['app/*.html','app/html/**/*'])
     .pipe($.useref({searchPath: ['.tmp', 'app', '.']}))
     .pipe($.sourcemaps.init())
     .pipe($.if('*.js', $.uglify()))
@@ -63,9 +64,9 @@ gulp.task('html',  () => {
 
 gulp.task('injectedScripts',  () => {
   return gulp.src('app/scripts/injected/**/*.js')
-    .pipe($.if('*.js', $.sourcemaps.init()))
-    .pipe($.if('*.js', $.uglify()))
-    .pipe($.if('*.js', $.sourcemaps.write('.')))
+    //.pipe($.if('*.js', $.sourcemaps.init()))
+    //.pipe($.if('*.js', $.uglify()))
+    //.pipe($.if('*.js', $.sourcemaps.write('.')))
     .pipe(gulp.dest('dist/scripts/injected'));
 });
 
@@ -97,18 +98,20 @@ gulp.task('babel', () => {
 
 gulp.task('clean', del.bind(null, ['.tmp', 'dist']));
 
-gulp.task('watch', ['lint', 'babel'], () => {
+gulp.task('watch', ['lint', 'babel', 'styles'], () => {
   $.livereload.listen();
 
   gulp.watch([
     'app/*.html',
+    'app//html/**/*.html',
     'app/scripts/**/*.js',
     'app/images/**/*',
-    'app/styles/**/*',
+    '.tmp/styles/**/*',
     'app/_locales/**/*.json'
   ]).on('change', $.livereload.reload);
 
   gulp.watch('app/scripts.babel/**/*.js', ['lint', 'babel']);
+  gulp.watch('app/styles.scss/**/*.scss', ['styles']);
   gulp.watch('bower.json', ['wiredep']);
 });
 
@@ -116,10 +119,21 @@ gulp.task('size', () => {
   return gulp.src('dist/**/*').pipe($.size({title: 'build', gzip: true}));
 });
 
+gulp.task('styles', () => {
+  return gulp.src('app/styles.scss/*.scss')
+      .pipe($.plumber())
+      .pipe($.sass.sync({
+        outputStyle: 'expanded',
+        precision: 10,
+        includePaths: ['.']
+      }).on('error', $.sass.logError))
+      .pipe(gulp.dest('app/styles'));
+});
+
 gulp.task('wiredep', () => {
-  gulp.src('app/*.html')
+  gulp.src(['app/*.html','app/html/**/*.html'])
     .pipe(wiredep({
-      ignorePath: /^(\.\.\/)*\.\./
+      //ignorePath: /^(\.\.\/)*\.\./
     }))
     .pipe(gulp.dest('app'));
 });
