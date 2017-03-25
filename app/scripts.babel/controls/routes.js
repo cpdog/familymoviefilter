@@ -2,6 +2,7 @@
 (function(){
   angular.module('openAngel').config(function ($stateProvider, $urlRouterProvider) {
     $urlRouterProvider.otherwise('/home');
+    //return;
     $stateProvider
       .state('app',{
         abstract: true,
@@ -13,7 +14,7 @@
         url:'/home'
       })
       .state('app.closedCaptions', {
-        templateUrl: 'views/kudosCategory/list.html',
+        templateUrl: 'views/closedCaptions.html',
         controller: 'closedCaptionsCtrl as vm',
         url:'/closedcaptions'
       });

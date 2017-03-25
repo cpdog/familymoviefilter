@@ -4,6 +4,8 @@ import gulpLoadPlugins from 'gulp-load-plugins';
 import del from 'del';
 import runSequence from 'run-sequence';
 import {stream as wiredep} from 'wiredep';
+import using from 'gulp-using';
+import ngAnnotate from 'gulp-ng-annotate';
 
 const $ = gulpLoadPlugins();
 
@@ -52,12 +54,13 @@ gulp.task('images', () => {
 });
 
 gulp.task('html',['styles'],  () => {
-  return gulp.src(['app/*.html','app/html/**/*'])
+  return gulp.src('app/**/*.html')
     .pipe($.useref({searchPath: ['.tmp', 'app', '.']}))
-    .pipe($.sourcemaps.init())
+    .pipe($.if('*.js', ngAnnotate()))
+    //.pipe($.sourcemaps.init())
     .pipe($.if('*.js', $.uglify()))
     .pipe($.if('*.css', $.cleanCss({compatibility: '*'})))
-    .pipe($.sourcemaps.write())
+    //.pipe($.sourcemaps.write())
     .pipe($.if('*.html', $.htmlmin({removeComments: true, collapseWhitespace: true})))
     .pipe(gulp.dest('dist'));
 });
@@ -65,10 +68,11 @@ gulp.task('html',['styles'],  () => {
 gulp.task('injectedScripts',  () => {
   return gulp.src('app/scripts/injected/**/*.js')
     //.pipe($.if('*.js', $.sourcemaps.init()))
-    //.pipe($.if('*.js', $.uglify()))
+    .pipe($.if('*.js', $.uglify()))
     //.pipe($.if('*.js', $.sourcemaps.write('.')))
     .pipe(gulp.dest('dist/scripts/injected'));
 });
+
 
 gulp.task('chromeManifest', () => {
   return gulp.src('app/manifest.json')
@@ -87,6 +91,7 @@ gulp.task('chromeManifest', () => {
   .pipe($.if('*.js', $.sourcemaps.write('.')))
   .pipe(gulp.dest('dist'));
 });
+
 
 gulp.task('babel', () => {
   return gulp.src('app/scripts.babel/**/*.js')
@@ -131,9 +136,10 @@ gulp.task('styles', () => {
 });
 
 gulp.task('wiredep', () => {
-  gulp.src(['app/*.html','app/html/**/*.html'])
+  gulp.src('app/**/*.html')
+    .pipe(using({}))
     .pipe(wiredep({
-      //ignorePath: /^(\.\.\/)*\.\./
+      ignorePath: /^(\.\.\/)*\.\./
     }))
     .pipe(gulp.dest('app'));
 });
@@ -147,8 +153,8 @@ gulp.task('package', function () {
 
 gulp.task('build', (cb) => {
   runSequence(
-    'lint', 'babel', 'chromeManifest',
-    ['html', 'images', 'extras','injectedScripts'],
+    'lint', 'babel', 'chromeManifest', 'injectedScripts',
+    ['html', 'images', 'extras'],
     'size', cb);
 });
 

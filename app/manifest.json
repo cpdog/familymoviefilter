@@ -14,14 +14,13 @@
       "scripts/background.js"
     ]
   },
-  "web_accessible_resources": [ "scripts/injected/main.js","scripts/injected/controls.js","bower_components/jquery/dist/jquery.js","bower_components/bootstrap/dist/css/bootstrap.min.css","html/controls/controls.html"],
+  "web_accessible_resources": [ "scripts/injected/main.js","bower_components/jquery/dist/jquery.js","bower_components/bootstrap/dist/css/bootstrap.min.css","html/controls/controls.html"],
   "permissions": [
     "tabs",
     "*://*.netflix.com/watch/*",
     "*://*.amazon.com/*",
     "*://*.youtube.com/*",
     "storage",
-
     "webRequest"
   ],
   "options_ui": {

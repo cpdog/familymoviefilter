@@ -6,6 +6,7 @@
   openAngel.netflixId=null;
   openAngel.reload=false;
   openAngel.entries = [];
+  openAngel.video = null;
 
   function keyPrs($$num, $$ctrlKey, $$shiftKey, $$altKey) {
     var $$element = document.body;
@@ -34,7 +35,7 @@
 
     function readyToGo($) {
 
-      let video = $('video:last').get(0);
+      openAngel.video = $('video:last').get(0);
       let badwordlist=['DAMN','\\bHELL\\b','JESUS','CHRIST','\\(CENSORED\\)'];
       let badWordsRegEx = new RegExp(badwordlist.join('|'),'gi');
 
@@ -57,11 +58,11 @@
           if (censorMe) {
             contents = contents.replace(badWordsRegEx, '(CENSORED)');
             $(x).html(contents.replace('\n','<br>'));
-            video.muted = shouldMute = true;
+            openAngel.video.muted = shouldMute = true;
             console.info('MUTE!');
           }
         });
-        video.muted = shouldMute;
+        openAngel.video.muted = shouldMute;
       }
 
       function doNetflixSkip(filters){
@@ -73,11 +74,11 @@
           keyPrs(32, false, false, false);
         }
         var playSpeed = Math.max(Math.min(8, filters[0].to - filters[0].from),2);
-        video.playbackRate = playSpeed;
+        openAngel.video.playbackRate = playSpeed;
         if ($('#censorme').length===0){
           $('body').append('<div id=\'censorme\' style=\'position:absolute; z-index:999999; background-color:black; color:white; font-size:100px; width:100%; height:100%\'>CENSORING...Skipping: <span id=\'whattime\'></span></div>');
         }
-        $('#whattime').text(video.currentTime);
+        $('#whattime').text(openAngel.video.currentTime);
       }
 
       function resetFilters(){
@@ -85,7 +86,7 @@
         openAngel.service='';
         openAngel.serviceId='';
         window.clearInterval(openAngel.timer);
-        video=null;
+        openAngel.video=null;
         openAngel.entries = [];
 
         if (location.href.toLowerCase().includes('netflix.com/watch/')) {
@@ -117,15 +118,15 @@
       function setupControls() {
         if ($('#openangelcontrols').length === 0){
           if (location.href.toLowerCase().indexOf('netflix') > -1 || location.href.toLowerCase().indexOf('amazon') > -1) {
-            $('body').append(`<iframe id='openangelcontrols' style="position: absolute; top:0; left:0; z-index: 9999; width: 100%; margin: 0; padding: 0; border:0; height:80px;" src="chrome-extension://${openAngel.extensionId}/controls.html"></iframe>`);
+            $('body').append(`<iframe id='openangelcontrols' style="position: absolute; top:0; left:0; z-index: 9999; width: 100%; margin: 0; padding: 0; border:0; height:80px;" src="chrome-extension://${openAngel.extensionId}/html/controls/controls.html"></iframe>`);
           }
           else if (location.href.toLowerCase().indexOf('youtube') > -1) {
-            //$('#watch-header').append(`<iframe id='openangelcontrols' style="width: 100%; margin: 0; padding: 0; border:0; height:80px;" src="chrome-extension://${openAngel.extensionId}/controls.html"></iframe>`);
+            //$('#watch-header').append(`<iframe id='openangelcontrols' style="width: 100%; margin: 0; padding: 0; border:0; height:80px;" src="chrome-extension://${openAngel.extensionId}/html/controls/controls.html"></iframe>`);
           }
         }
         else {
           if (location.href.toLowerCase().indexOf('netflix') > -1 || location.href.toLowerCase().indexOf('amazon') > -1) {
-            $(video).css({height: 'calc(100% - 120px)', top: '80px'});
+            $(openAngel.video).css({height: 'calc(100% - 120px)', top: '80px'});
             $('#netflix-player .player-back-to-browsing').css({'top' : '1em'});
           }
           else if (location.href.toLowerCase().indexOf('youtube') > -1) {
@@ -143,21 +144,21 @@
           resetFilters();
           return;
         }
-        video = video || $('video:last').get(0);
-        if (!video) {
+        openAngel.video = openAngel.video || $('video:last').get(0);
+        if (!openAngel.video) {
           return;
         }
-        else if (video.currentTime == 0) {
-          video = $('video:last').get(0);
+        else if (openAngel.video.currentTime === 0) {
+          openAngel.video = $('video:last').get(0);
         }
 
         setupControls();
 
-        let filters = openAngel.entries.filter(x => x.from <= video.currentTime && x.to >= video.currentTime);
+        let filters = openAngel.entries.filter(x => x.from <= openAngel.video.currentTime && x.to >= openAngel.video.currentTime);
         if (filters.length > 0) {
           if (!filters[0].active) {
             filters[0].active = true;
-            video.muted = true;
+            openAngel.video.muted = true;
 
             if (filters[0].type === 'video') {
               if (location.href.toLowerCase().indexOf('netflix') > -1) {
@@ -165,27 +166,27 @@
               }
               else {
                 if (location.href.toLowerCase().indexOf('youtube') > -1) {
-                  video.currentTime = filters[0].to;
+                  openAngel.video.currentTime = filters[0].to;
                 }
                 else {
-                  video.pause();
-                  video.currentTime = filters[0].to;
-                  video.play();
+                  openAngel.video.pause();
+                  openAngel.video.currentTime = filters[0].to;
+                  openAngel.video.play();
                 }
               }
-              $(video).hide();
+              $(openAngel.video).hide();
             }
           }
           console.log('in a filter');
-          $('#whattime').text(video.currentTime);
+          $('#whattime').text(openAngel.video.currentTime);
         }
         else {
           var activeFilters = openAngel.entries.filter(x => x.active);
           if (activeFilters.length > 0) {
             activeFilters[0].active = false;
-            video.muted = false;
-            video.playbackRate = 1;
-            $(video).show();
+            openAngel.video.muted = false;
+            openAngel.video.playbackRate = 1;
+            $(openAngel.video).show();
             $('#censorme').remove();
           }
           else {
@@ -193,7 +194,7 @@
           }
 
           if (openAngel.settings.showConsole) {
-            console.log(video.currentTime);
+            console.log(openAngel.video.currentTime);
           }
         }
       }
@@ -212,14 +213,19 @@
       return;
     }
 
-    if (evt.data.action==='reload'){
-      openAngel.reload=true;
-    }
-    else if (evt.data.action === 'loadsettings') {
-      openAngel.settings = evt.data.settings;
-    }
-    else if (evt.data.action === 'setExtensionId') {
-      openAngel.extensionId = evt.data.extensionId;
+    switch(evt.data.action){
+      case 'reload':
+        openAngel.reload=true;
+        break;
+      case 'loadsettings':
+        openAngel.settings = evt.data.settings;
+        break;
+      case 'setExtensionId':
+        openAngel.extensionId = evt.data.extensionId;
+        break;
+      case 'playPauseClicked':
+        openAngel.video.pause();
+        break;
     }
   });
 

@@ -4,13 +4,14 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- build:css styles/popup-vendor.css -->
+  <!-- build:css /styles/popup-vendor.css -->
   <!-- bower:css -->
-
+  <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.css" />
+  <link rel="stylesheet" href="/bower_components/components-font-awesome/css/font-awesome.css" />
   <!-- endbower -->
   <!-- endbuild -->
-  <!-- build:css styles/controls.css -->
-    <link href="../../styles/controls.css" rel="stylesheet">
+  <!-- build:css /styles/controls.css -->
+    <link href="/styles/controls.css" rel="stylesheet">
   <!-- endbuild -->
 </head>
 
@@ -19,24 +20,18 @@
 <nav class="navbar navbar-inverse" ng-controller="NavbarCtrl as vm">
   <div class="container">
     <div class="navbar-header">
-      <a class="navbar-brand" href="#">Project name</a>
+      <a class="navbar-brand" href="#">Project name {{vm.filters}}
+        {{vm.email}}
+      </a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
-      <form class="navbar-form navbar-right">
-        <div class="form-group">
-          <input type="text" placeholder="Email" class="form-control">
-        </div>
-        <div class="form-group">
-          <input type="password" placeholder="Password" class="form-control">
-        </div>
-        <button type="submit" class="btn btn-success">Sign in</button>
-      </form>
+
 
       <div class="btn-group navbar-btn ">
         <button type="button" class="btn btn-default">
           <i class="fa fa-fast-backward"></i>
         </button>
-        <button type="button" class="btn btn-default">
+        <button type="button" class="btn btn-default" ng-click="vm.playPauseClicked()">
           <i class="fa fa-pause"></i>
         </button>
         <button type="button" class="btn btn-default">
@@ -49,21 +44,24 @@
 
 <section ui-view></section>
 
-<!-- build:js scripts/popup-vendor.js -->
+<!-- build:js /scripts/popup-vendor.js -->
 <!-- bower:js -->
-<script src="../../bower_components/jquery/dist/jquery.js"></script>
-<script src="../../bower_components/bootstrap/dist/js/bootstrap.js"></script>
-<script src="../../bower_components/angular/angular.js"></script>
-<script src="../../bower_components/angular-animate/angular-animate.js"></script>
-<script src="../../bower_components/angular-route/angular-route.js"></script>
-<script src="../../bower_components/angular-ui-router/release/angular-ui-router.js"></script>
-<script src="../../bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+<script src="/bower_components/jquery/dist/jquery.js"></script>
+<script src="/bower_components/bootstrap/dist/js/bootstrap.js"></script>
+<script src="/bower_components/angular/angular.js"></script>
+<script src="/bower_components/angular-animate/angular-animate.js"></script>
+<script src="/bower_components/angular-route/angular-route.js"></script>
+<script src="/bower_components/angular-ui-router/release/angular-ui-router.js"></script>
+<script src="/bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+<script src="/bower_components/angular-resource/angular-resource.js"></script>
 <!-- endbower -->
 <!-- endbuild -->
 
-<!-- build:js(scripts.babel/controls) scripts/controls.js -->
-<script src="../../scripts/controls.js"></script>
-<script src="scripts/routes.js"></script>
+<!-- build:js /scripts/controlsApp.js -->
+  <script src="/scripts/controls/controls.js"></script>
+  <script src="/scripts/controls/routes.js"></script>
+  <script src="/scripts/controls/navBarctrl.js"></script>
+  <script src="/scripts/controls/mainCtrl.js"></script>
 <!-- endbuild -->
 
 </body>
