@@ -7,6 +7,30 @@
   openAngel.reload=false;
   openAngel.entries = [];
   openAngel.video = null;
+  openAngel.togglePlayPause = function() {
+    if (openAngel.video) {
+      if (openAngel.video.paused) {
+        openAngel.video.play();
+      }
+      else{
+        openAngel.video.pause();
+      }
+    }
+  };
+
+  openAngel.fastForward = function() {
+    if (openAngel.video) {
+      keyPrs(39,false,false,false);
+      keyPrs(32, false, false, false);
+    }
+  };
+
+  openAngel.fastBackward = function() {
+    if (openAngel.video) {
+      keyPrs(37,false,false,false);
+      keyPrs(32, false, false, false);
+    }
+  };
 
   function keyPrs($$num, $$ctrlKey, $$shiftKey, $$altKey) {
     var $$element = document.body;
@@ -76,7 +100,7 @@
         var playSpeed = Math.max(Math.min(8, filters[0].to - filters[0].from),2);
         openAngel.video.playbackRate = playSpeed;
         if ($('#censorme').length===0){
-          $('body').append('<div id=\'censorme\' style=\'position:absolute; z-index:999999; background-color:black; color:white; font-size:100px; width:100%; height:100%\'>CENSORING...Skipping: <span id=\'whattime\'></span></div>');
+          //$('body').append('<div id=\'censorme\' style=\'position:absolute; z-index:999999; background-color:black; color:white; font-size:100px; width:100%; height:100%\'>CENSORING...Skipping: <span id=\'whattime\'></span></div>');
         }
         $('#whattime').text(openAngel.video.currentTime);
       }
@@ -123,6 +147,7 @@
           else if (location.href.toLowerCase().indexOf('youtube') > -1) {
             //$('#watch-header').append(`<iframe id='openangelcontrols' style="width: 100%; margin: 0; padding: 0; border:0; height:80px;" src="chrome-extension://${openAngel.extensionId}/html/controls/controls.html"></iframe>`);
           }
+          openAngel.controlsWindow = $('#openangelcontrols').get(0).contentWindow;
         }
         else {
           if (location.href.toLowerCase().indexOf('netflix') > -1 || location.href.toLowerCase().indexOf('amazon') > -1) {
@@ -152,6 +177,14 @@
           openAngel.video = $('video:last').get(0);
         }
 
+        openAngel.currentStatus = {currentTime: openAngel.video.currentTime, paused: openAngel.video.paused};
+        if (openAngel.controlsWindow) {
+          openAngel.controlsWindow.postMessage({
+            action: 'currentStatus',
+            from: 'openangel',
+            status: openAngel.currentStatus
+          }, '*');
+        }
         setupControls();
 
         let filters = openAngel.entries.filter(x => x.from <= openAngel.video.currentTime && x.to >= openAngel.video.currentTime);
@@ -224,7 +257,13 @@
         openAngel.extensionId = evt.data.extensionId;
         break;
       case 'playPauseClicked':
-        openAngel.video.pause();
+        openAngel.togglePlayPause();
+        break;
+      case 'fastForwardClicked':
+        openAngel.fastForward();
+        break;
+      case 'fastBackwardClicked':
+        openAngel.fastBackward();
         break;
     }
   });

@@ -5,4 +5,4 @@ angular
     'ngResource',
     'ui.router',
     'ui.bootstrap'
-  ]);
+  ]).constant('_', window._);

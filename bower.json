@@ -11,7 +11,8 @@
     "angular-route": "^1.6.3",
     "angular-ui-router": "^0.4.2",
     "angular-bootstrap": "^2.5.0",
-    "angular-resource": "^1.6.3"
+    "angular-resource": "^1.6.3",
+    "lodash": "^4.17.4"
   },
   "devDependencies": {
     "chai": "^3.5.0",
