@@ -22,7 +22,7 @@ function loadScript(){
 
 loadScript();
 
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function(request) {
     if (request.action === 'reloadme') {
       window.postMessage({ action: 'reload', from:'openangel'}, '*');
     }

@@ -1,8 +1,6 @@
-'use strict';
-
-
 (function ($) {
-  var openAngel = (window.openAngel = window.openAngel || {});
+  'use strict';
+  let openAngel = (window.openAngel = window.openAngel || {});
   openAngel.netflixId=null;
   openAngel.reload=false;
   openAngel.entries = [];
@@ -18,25 +16,11 @@
     }
   };
 
-  openAngel.fastForward = function() {
-    if (openAngel.video) {
-      keyPrs(39,false,false,false);
-      keyPrs(32, false, false, false);
-    }
-  };
-
-  openAngel.fastBackward = function() {
-    if (openAngel.video) {
-      keyPrs(37,false,false,false);
-      keyPrs(32, false, false, false);
-    }
-  };
-
   function keyPrs($$num, $$ctrlKey, $$shiftKey, $$altKey) {
-    var $$element = document.body;
+    let $$element = document.body;
 
     function keyEvent($$el, $$ev) {
-      var $$eventObj = document.createEvent('Events');
+      let $$eventObj = document.createEvent('Events');
       $$eventObj.initEvent($$ev, true, true);
       $$eventObj.keyCode = $$num;
       $$eventObj.which = $$num;
@@ -52,17 +36,30 @@
     keyEvent($$element, 'keyup');
   }
 
+  openAngel.fastForward = function() {
+    if (openAngel.video) {
+      keyPrs(39,false,false,false);
+      keyPrs(32, false, false, false);
+    }
+  };
+
+  openAngel.fastBackward = function() {
+    if (openAngel.video) {
+      keyPrs(37,false,false,false);
+      keyPrs(32, false, false, false);
+    }
+  };
+
   function startFilters() {
     RegExp.escape = function( value ) {
       return value.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
-    }
+    };
 
     function readyToGo($) {
 
       openAngel.video = $('video:last').get(0);
       let badwordlist=['DAMN','\\bHELL\\b','JESUS','CHRIST','\\(CENSORED\\)'];
       let badWordsRegEx = new RegExp(badwordlist.join('|'),'gi');
-
 
       $.get('https://raw.githubusercontent.com/LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words/master/en').done(function(data){
         let badWordsFromWeb = new Set(data.split('\n'));
@@ -97,7 +94,7 @@
         if (numTimesToPressRightArrow > 0) {
           keyPrs(32, false, false, false);
         }
-        var playSpeed = Math.max(Math.min(8, filters[0].to - filters[0].from),2);
+        let playSpeed = Math.max(Math.min(8, filters[0].to - filters[0].from),2);
         openAngel.video.playbackRate = playSpeed;
         if ($('#censorme').length===0){
           //$('body').append('<div id=\'censorme\' style=\'position:absolute; z-index:999999; background-color:black; color:white; font-size:100px; width:100%; height:100%\'>CENSORING...Skipping: <span id=\'whattime\'></span></div>');
@@ -105,7 +102,7 @@
         $('#whattime').text(openAngel.video.currentTime);
       }
 
-      function resetFilters(){
+      function resetFilters() {
         openAngel.reload = false;
         openAngel.service='';
         openAngel.serviceId='';
@@ -142,7 +139,7 @@
       function setupControls() {
         if ($('#openangelcontrols').length === 0){
           if (location.href.toLowerCase().indexOf('netflix') > -1 || location.href.toLowerCase().indexOf('amazon') > -1) {
-            $('body').append(`<iframe id='openangelcontrols' style="position: absolute; top:0; left:0; z-index: 9999; width: 100%; margin: 0; padding: 0; border:0; height:80px;" src="chrome-extension://${openAngel.extensionId}/html/controls/controls.html"></iframe>`);
+            $('body').append(`<iframe id='openangelcontrols' style="position: absolute; top:0; left:0; z-index: 9999; width: 100%; margin: 0; padding: 0; border:0; height:52px; overflow: hidden" src="chrome-extension://${openAngel.extensionId}/html/controls/controls.html"></iframe>`);
           }
           else if (location.href.toLowerCase().indexOf('youtube') > -1) {
             //$('#watch-header').append(`<iframe id='openangelcontrols' style="width: 100%; margin: 0; padding: 0; border:0; height:80px;" src="chrome-extension://${openAngel.extensionId}/html/controls/controls.html"></iframe>`);
@@ -151,8 +148,9 @@
         }
         else {
           if (location.href.toLowerCase().indexOf('netflix') > -1 || location.href.toLowerCase().indexOf('amazon') > -1) {
-            $(openAngel.video).css({height: 'calc(100% - 120px)', top: '80px'});
+            $(openAngel.video).css({height: 'calc(100% - 55px)', top: '55px'});
             $('#netflix-player .player-back-to-browsing').css({'top' : '1em'});
+            $('.webPlayer>.overlaysContainer','').css({'top' : '20px'});
           }
           else if (location.href.toLowerCase().indexOf('youtube') > -1) {
 

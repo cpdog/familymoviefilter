@@ -1,4 +1,6 @@
 // generated on 2017-03-14 using generator-chrome-extension 0.6.1
+/* jshint node: true */
+'use strict';
 import gulp from 'gulp';
 import gulpLoadPlugins from 'gulp-load-plugins';
 import del from 'del';
