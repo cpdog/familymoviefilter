@@ -1,5 +1,48 @@
+$icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/bootstrap/";
+@import "themes/superhero/variables";
+// bower:scss
+@import "../bower_components/bootstrap-sass/assets/stylesheets/_bootstrap.scss";
+// endbower
+@import "themes/superhero/bootswatch";
+
 body{
   background: transparent;
-  height:52px;
+  height:62px;
   overflow: hidden;
+  padding-top: 60px;
+}
+
+body.overlay{
+  overflow: auto;
+  height:auto;
+}
+
+.fa-2x, .fa-3x, .fa-4x {
+  vertical-align: middle;
+}
+
+.closeX{
+  position: fixed;
+}
+
+tr.filterEnabled td{
+  text-decoration: line-through;
+}
+
+tr.filterEnabled td.durationCell{
+  text-decoration: none;
+}
+
+.status-well {
+  margin-top:3px;
+  padding:3px;
+  margin-bottom:3px;
+  margin-right:10px;
+  font-size: 15px;
+  height:40px;
+
+  .badge{
+    font-weight: bold;
+    font-size:16px;
+  }
 }

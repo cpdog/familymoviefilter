@@ -6,21 +6,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- build:css /styles/popup-vendor.css -->
   <!-- bower:css -->
-  <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.css" />
-  <link rel="stylesheet" href="/bower_components/components-font-awesome/css/font-awesome.css" />
+  <link rel="stylesheet" href="/bower_components/components-font-awesome/css/font-awesome.css"/>
   <!-- endbower -->
   <!-- endbuild -->
   <!-- build:css /styles/controls.css -->
-    <link href="/styles/controls.css" rel="stylesheet">
+  <link href="/styles/controls.css" rel="stylesheet">
   <!-- endbuild -->
 </head>
 
-<body>
+<body ng-controller="NavbarCtrl as vm" ng-class="{'overlay': vm.controlsFullScreen}">
 
-<nav class="navbar navbar-inverse navbar-fixed-top" ng-controller="NavbarCtrl as vm">
+
+<nav class="navbar navbar-default navbar-fixed-top">
   <div class="container" ng-cloak>
     <div class="navbar-header">
-      <a class="navbar-brand" href="#">Family Movie Filters</a>
+      <a class="navbar-brand" href="#">
+        Family Movie Filters
+      </a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
 
@@ -36,24 +38,46 @@
         <button type="button" class="btn btn-default" ng-click="vm.fastForward()">
           <i class="fa fa-fast-forward"></i>
         </button>
+
+        <button ng-if="vm.currentStatus.entries.length>0" type="button" class="btn btn-default" uib-tooltip="Reload filters" tooltip-placement="right" ng-click="vm.reloadFilters()">
+          <i class="fa fa-refresh"></i>
+        </button>
       </div>
-      <p class="navbar-text" style="width:100px">
-        {{vm.currentStatus.currentTime }}
-      </p>
-      <p class="navbar-text" style="width:100px">
-        {{vm.currentStatus.currentTime | formatSeconds}}
-      </p>
+
+
+      <div class="well well-sm pull-right status-well" id="timeStatus">
+        {{vm.currentStatus.currentTime.toFixed(6) }} | {{vm.currentStatus.currentTime | formatSeconds}} /
+        {{vm.currentStatus.duration| formatSeconds}}
+        <i class="fa fa-clock-o fa-2x"></i>
+      </div>
+      <div class="well well-sm pull-right status-well">
+        <strong>Filters available:</strong>
+        <strong ng-if="vm.currentStatus.entries.length > 0">
+          <a class="badge" ng-click="vm.showFilters()">{{vm.currentStatus.entries.length}}</a>
+        </strong>
+        <i ng-if="vm.currentStatus.entries.length == 0" class="fa fa-times-circle-o fa-2x text-danger"></i>
+      </div>
 
     </div>
   </div>
 </nav>
+<div class="container">
+  <div class="pull-right">
+    <div class="closeX">
+      <a ng-click="vm.closePopup()" role="button"><i class="fa fa-times fa-3x"></i></a>
+    </div>
+  </div>
 
-<section ui-view></section>
+</div>
+
+<div class="container">
+  <section ui-view></section>
+</div>
+
 
 <!-- build:js /scripts/popup-vendor.js -->
 <!-- bower:js -->
 <script src="/bower_components/jquery/dist/jquery.js"></script>
-<script src="/bower_components/bootstrap/dist/js/bootstrap.js"></script>
 <script src="/bower_components/angular/angular.js"></script>
 <script src="/bower_components/angular-animate/angular-animate.js"></script>
 <script src="/bower_components/angular-route/angular-route.js"></script>
@@ -61,14 +85,17 @@
 <script src="/bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
 <script src="/bower_components/angular-resource/angular-resource.js"></script>
 <script src="/bower_components/lodash/lodash.js"></script>
+<script src="/bower_components/bootstrap-sass/assets/javascripts/bootstrap.js"></script>
 <!-- endbower -->
 <!-- endbuild -->
 
 <!-- build:js /scripts/controlsApp.js -->
-  <script src="/scripts/controls/controls.js"></script>
-  <script src="/scripts/controls/routes.js"></script>
-  <script src="/scripts/controls/navBarctrl.js"></script>
-  <script src="/scripts/controls/mainCtrl.js"></script>
+<script src="/scripts/controls/controls.js"></script>
+<script src="/scripts/controls/routes.js"></script>
+<script src="/scripts/controls/navBarctrl.js"></script>
+<script src="/scripts/controls/mainCtrl.js"></script>
+<script src="/scripts/controls/filterListCtrl.js"></script>
+<script src="/scripts/controls/videoStateService.js"></script>
 <!-- endbuild -->
 
 </body>

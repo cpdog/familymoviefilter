@@ -1,6 +1,6 @@
 {
   "name": "__MSG_appName__",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "manifest_version": 2,
   "description": "__MSG_appDescription__",
   "icons": {
@@ -14,7 +14,7 @@
       "scripts/background.js"
     ]
   },
-  "web_accessible_resources": [ "scripts/injected/main.js","bower_components/jquery/dist/jquery.js","bower_components/bootstrap/dist/css/bootstrap.min.css","html/controls/controls.html"],
+  "web_accessible_resources": [ "scripts/injected/mainNew.js","bower_components/jquery/dist/jquery.js","bower_components/bootstrap/dist/css/bootstrap.min.css","html/controls/controls.html"],
   "permissions": [
     "tabs",
     "*://*.netflix.com/watch/*",
@@ -34,6 +34,7 @@
         "bower_components/jquery/dist/jquery.js",
         "scripts/contentscript.js"
       ],
+      "css": ["styles/injected.css"],
       "run_at": "document_end"
     }
   ],

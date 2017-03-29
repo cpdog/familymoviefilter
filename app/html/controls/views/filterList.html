@@ -1,0 +1,34 @@
+<div class="panel panel-default">
+  <!-- Default panel contents -->
+  <div class="panel-heading">Current Filters</div>
+  <div class="panel-body">
+    Filters that are enabled are shown <span class="filterEnabled">like this</span>.
+  </div>
+
+  <!-- Table -->
+  <table class="table table-striped table-hover">
+    <thead>
+    <tr>
+      <th>Level</th>
+      <th>Category</th>
+      <th>Comment</th>
+      <th>Duration</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr ng-repeat="entry in vm.currentStatus.entries" ng-class="{'filterEnabled': entry.enabled}">
+      <td><i class="fa" ng-class="entry.level=='l' ? 'fa-arrow-down text-info' : 'fa-arrow-up text-warning'"></i></td>
+      <td>
+        <i class="fa" ng-class="entry.type =='video' ? 'fa-video-camera' : 'fa-volume-up' "></i>
+        {{entry.category}}
+      </td>
+      <td>
+        {{entry.comment}}
+      </td>
+      <td class="durationCell">
+        {{entry.from | formatSeconds}} - {{entry.to | formatSeconds}} ({{(entry.to - entry.from).toFixed(2)}} seconds)
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>

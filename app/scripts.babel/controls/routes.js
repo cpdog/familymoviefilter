@@ -17,6 +17,10 @@
         templateUrl: 'views/closedCaptions.html',
         controller: 'closedCaptionsCtrl as vm',
         url:'/closedcaptions'
+      }).state('app.filterList', {
+        templateUrl: 'views/filterList.html',
+        controller: 'filterListCtrl as vm',
+        url:'/filterList'
       });
   });
 })();

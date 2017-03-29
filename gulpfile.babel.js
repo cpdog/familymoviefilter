@@ -25,6 +25,15 @@ gulp.task('extras', () => {
   }).pipe(gulp.dest('dist'));
 });
 
+gulp.task('fonts', () => {
+  return gulp.src([
+    'app/bower_components/components-font-awesome/fonts/**'
+  ], {
+    base: 'app/bower_components/components-font-awesome',
+    dot: true
+  }).pipe(gulp.dest('dist'));
+});
+
 function lint(files, options) {
   return () => {
     return gulp.src(files)
@@ -144,6 +153,13 @@ gulp.task('wiredep', () => {
       ignorePath: /^(\.\.\/)*\.\./
     }))
     .pipe(gulp.dest('app'));
+
+  gulp.src('app/styles.scss/**/*.scss')
+    .pipe(using({}))
+    .pipe(wiredep({
+      ignorePath: '/../'
+    }))
+    .pipe(gulp.dest('app/styles.scss'));
 });
 
 gulp.task('package', function () {
@@ -156,7 +172,7 @@ gulp.task('package', function () {
 gulp.task('build', (cb) => {
   runSequence(
     'lint', 'babel', 'chromeManifest', 'injectedScripts',
-    ['html', 'images', 'extras'],
+    ['html', 'images', 'extras', 'fonts'],
     'size', cb);
 });
 

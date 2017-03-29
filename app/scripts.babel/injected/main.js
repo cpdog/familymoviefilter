@@ -175,7 +175,7 @@
           openAngel.video = $('video:last').get(0);
         }
 
-        openAngel.currentStatus = {currentTime: openAngel.video.currentTime, paused: openAngel.video.paused};
+        openAngel.currentStatus = {currentTime: openAngel.video.currentTime, paused: openAngel.video.paused, duration: openAngel.video.duration};
         if (openAngel.controlsWindow) {
           openAngel.controlsWindow.postMessage({
             action: 'currentStatus',

@@ -4,7 +4,6 @@
   "version": "0.0.0",
   "dependencies": {
     "jquery": "^3.1.1",
-    "bootstrap": "^3.3.7",
     "components-font-awesome": "^4.7.0",
     "angular": "^1.6.3",
     "angular-animate": "^1.6.3",
@@ -12,7 +11,8 @@
     "angular-ui-router": "^0.4.2",
     "angular-bootstrap": "^2.5.0",
     "angular-resource": "^1.6.3",
-    "lodash": "^4.17.4"
+    "lodash": "^4.17.4",
+    "bootstrap-sass": "bootstrap-sass-official#^3.3.7"
   },
   "devDependencies": {
     "chai": "^3.5.0",

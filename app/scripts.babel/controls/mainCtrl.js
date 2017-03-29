@@ -3,6 +3,6 @@
   angular
     .module('openAngel')
     .controller('MainCtrl', function() {
-      var vm = this;
+      let vm = this;
     });
 })();
