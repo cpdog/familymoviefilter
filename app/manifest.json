@@ -1,6 +1,6 @@
 {
   "name": "__MSG_appName__",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "manifest_version": 2,
   "description": "__MSG_appDescription__",
   "icons": {
@@ -43,7 +43,7 @@
       "19": "images/icon-19.png",
       "38": "images/icon-38.png"
     },
-    "default_title": "openangel",
+    "default_title": "Family Movie Filter",
     "default_popup": "popup.html"
   }
 }

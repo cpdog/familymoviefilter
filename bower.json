@@ -10,7 +10,6 @@
     "angular-route": "^1.6.3",
     "angular-ui-router": "^0.4.2",
     "angular-bootstrap": "^2.5.0",
-    "angular-resource": "^1.6.3",
     "lodash": "^4.17.4",
     "bootstrap-sass": "bootstrap-sass-official#^3.3.7"
   },
