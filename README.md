@@ -1,6 +1,6 @@
 # Family Movie Filter
 
-###Todo items [Chrome Extension]
+### Todo items [Chrome Extension]
 
 - Add blur capability for editors
 - Add link to see closed captions
