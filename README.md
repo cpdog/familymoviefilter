@@ -1,5 +1,7 @@
 # Family Movie Filter
 
+[![Build Status](https://travis-ci.org/cpdog/familymoviefilter.svg?branch=master)](https://travis-ci.org/cpdog/familymoviefilter)
+
 ### Todo items [Chrome Extension]
 
 - Add blur capability for editors
