@@ -256,10 +256,10 @@ class OpenAngel {
           this.fastBackward();
           break;
         case 'expandPopup':
-          this.jQuery('#openangelcontrols').addClass('overlay');
+          this.jQuery('#openangelcontrols').addClass('openangeloverlay');
           break;
         case 'closePopup':
-          this.jQuery('#openangelcontrols').removeClass('overlay');
+          this.jQuery('#openangelcontrols').removeClass('openangeloverlay');
           break;
         default:
           console.log('unknown message:' + evt);
