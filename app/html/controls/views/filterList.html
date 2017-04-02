@@ -17,7 +17,9 @@
     </thead>
     <tbody>
     <tr ng-repeat="entry in vm.currentStatus.entries" ng-class="{'filterEnabled': entry.enabled}">
-      <td><i class="fa" ng-class="entry.level=='l' ? 'fa-arrow-down text-info' : 'fa-arrow-up text-warning'"></i></td>
+      <td>
+        <i class="fa" ng-class="entry.level=='l' ? 'fa-arrow-down text-info' : 'fa-arrow-up text-warning'"></i>
+      </td>
       <td>
         <i class="fa" ng-class="entry.type =='video' ? 'fa-video-camera' : 'fa-volume-up' "></i>
         {{entry.category}}

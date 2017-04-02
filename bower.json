@@ -11,7 +11,9 @@
     "angular-ui-router": "^0.4.2",
     "angular-bootstrap": "^2.5.0",
     "lodash": "^4.17.4",
-    "bootstrap-sass": "bootstrap-sass-official#^3.3.7"
+    "bootstrap-sass": "bootstrap-sass-official#^3.3.7",
+    "datatables.net": "^2.1.1",
+    "datatables.net-bs": "^2.1.1"
   },
   "devDependencies": {
     "chai": "^3.5.0",

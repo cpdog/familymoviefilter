@@ -43,6 +43,11 @@
         vm.controlsFullScreen = true;
       };
 
+      vm.showClosedCaptionList = function(){
+        $state.go('app.closedCaptions');
+        vm.expandPopup();
+      };
+
       vm.showFilters = function(){
         $state.go('app.filterList');
         vm.expandPopup();

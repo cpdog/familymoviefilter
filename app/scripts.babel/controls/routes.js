@@ -15,7 +15,7 @@
       })
       .state('app.closedCaptions', {
         templateUrl: 'views/closedCaptions.html',
-        controller: 'closedCaptionsCtrl as vm',
+        controller: 'closedCaptionListCtrl as vm',
         url:'/closedcaptions'
       }).state('app.filterList', {
         templateUrl: 'views/filterList.html',

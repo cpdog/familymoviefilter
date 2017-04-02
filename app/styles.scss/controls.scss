@@ -1,4 +1,4 @@
-$icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/bootstrap/";
+$icon-font-path: "../bower_components/bootstrap-sass/assets/fonts/bootstrap/";
 @import "themes/superhero/variables";
 // bower:scss
 @import "../bower_components/bootstrap-sass/assets/stylesheets/_bootstrap.scss";
@@ -45,4 +45,7 @@ tr.filterEnabled td.durationCell{
     font-weight: bold;
     font-size:16px;
   }
+}
+.skipLink{
+  cursor: pointer;
 }

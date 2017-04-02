@@ -26,6 +26,9 @@ chrome.runtime.onMessage.addListener(function(request) {
     if (request.action === 'reloadme') {
       window.postMessage({ action: 'reload', from:'openangel'}, '*');
     }
+    else if (request.action === 'closedCaptionUrl') {
+      window.postMessage({ action: 'closedCaptionUrl', from:'openangel', url: request.url}, '*');
+    }
     else if (request.action === 'settingschanged'){
       chrome.storage.sync.get({enableFilters: true,showConsole: true}, function(settings) {
         window.postMessage({ action: 'loadsettings', from:'openangel', settings}, '*');

@@ -7,7 +7,9 @@
   <!-- build:css /styles/popup-vendor.css -->
   <!-- bower:css -->
   <link rel="stylesheet" href="/bower_components/components-font-awesome/css/font-awesome.css" />
+  <link rel="stylesheet" href="/bower_components/datatables.net-bs/css/dataTables.bootstrap.css" />
   <!-- endbower -->
+  <link rel="/"
   <!-- endbuild -->
 
   <!-- build:css /styles/controls.css -->
@@ -43,6 +45,8 @@
         <button ng-if="vm.currentStatus.entries.length>0" type="button" class="btn btn-default" uib-tooltip="Reload filters" tooltip-placement="right" ng-click="vm.reloadFilters()">
           <i class="fa fa-refresh"></i>
         </button>
+
+        <button ng-if="vm.currentStatus.closedCaptionUrl" class="btn btn-default" ng-click="vm.showClosedCaptionList()"><i class="fa fa-cc"></i></button>
       </div>
 
 
@@ -86,7 +90,10 @@
 <script src="/bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
 <script src="/bower_components/lodash/lodash.js"></script>
 <script src="/bower_components/bootstrap-sass/assets/javascripts/bootstrap.js"></script>
+<script src="/bower_components/datatables.net/js/jquery.dataTables.js"></script>
+<script src="/bower_components/datatables.net-bs/js/dataTables.bootstrap.js"></script>
 <!-- endbower -->
+<script src="/scripts/controls/dataTablesPlugin.js"></script>
 <!-- endbuild -->
 
 <!-- build:js /scripts/controlsApp.js -->
@@ -96,6 +103,8 @@
 <script src="/scripts/controls/mainCtrl.js"></script>
 <script src="/scripts/controls/filterListCtrl.js"></script>
 <script src="/scripts/controls/videoStateService.js"></script>
+<script src="/scripts/controls/closedCaptionService.js"></script>
+<script src="/scripts/controls/closedCaptionListCtrl.js"></script>
 <!-- endbuild -->
 
 </body>

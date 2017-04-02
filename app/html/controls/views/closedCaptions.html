@@ -1,1 +1,27 @@
-Hello
+<div class="panel panel-default">
+  <!-- Default panel contents -->
+  <div class="panel-heading">Closed Captions</div>
+  <div class="panel-body">
+    <h5 ng-if="vm.entries.length === 0">Loading...</h5>
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="vm.autoScroll">
+        Auto scroll captions
+      </label>
+    </div>
+  </div>
+
+  <div style="padding:10px">
+    <table class="table table-striped table-hover" id="closedCaptionTable">
+      <thead>
+      <tr>
+        <th></th>
+        <th>Caption</th>
+        <th>From</th>
+        <th>To</th>
+      </tr>
+      </thead>
+    </table>
+  </div>
+
+</div>

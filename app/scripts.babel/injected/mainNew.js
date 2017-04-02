@@ -27,10 +27,13 @@ class OpenAngel {
     this.settings = {};
     this.currentStatus = {};
     this.serviceId = null;
+    this.netflix = false;
+    this.amazon = false;
     this.service = null;
     this.controlsWindow = null;
     this.video = null;
     this.extensionId = null;
+    this.closedCaptionUrl = '';
     this.entries = [];
     this.badwordlist = ['DAMN', '\\bHELL\\b', 'JESUS', 'CHRIST', '\\(CENSORED\\)'];
     this.badWordsRegEx = new RegExp(this.badwordlist.join('|'), 'gi');
@@ -39,34 +42,76 @@ class OpenAngel {
     RegExp.escape = function (value) {
       return value.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
     };
+
+    jQuery.get('https://raw.githubusercontent.com/LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words/master/en').done(data => {
+      let badWordsFromWeb = new Set(data.split('\n'));
+      let maybeOkWords = new Set(['swastika']);
+      maybeOkWords.forEach(key => badWordsFromWeb.delete(key));
+
+      this.badwordlist = this.badwordlist.concat([...badWordsFromWeb].map(x => '\\b' + RegExp.escape(x) + 's?\\b')).filter(x => x !== '\\bs?\\b' && x !== null);
+      this.badWordsRegEx = new RegExp(this.badwordlist.join('|'), 'gi');
+    });
   }
 
   fastForward() {
-    if (this.video) {
+    if (this.video && this.netflix) {
       KeyboardHelper.keyPresss(39, false, false, false);
       KeyboardHelper.keyPresss(32, false, false, false);
+    }
+    else{
+      this.moveToTime(this.video.currentTime+10);
     }
   }
 
   fastBackward() {
-    if (this.video) {
+    if (this.video && this.netflix) {
       KeyboardHelper.keyPresss(37, false, false, false);
       KeyboardHelper.keyPresss(32, false, false, false);
     }
+    else{
+      this.moveToTime(this.video.currentTime-10);
+    }
   }
 
-  autoMute() {
-    let shouldMute = false;
+  moveToTime(time) {
+    if (this.netflix) {
+      console.log('skpping to' + time);
+      let numTimesToPressArrow = (Math.floor(time - this.video.currentTime) / 10) - 1; //this will be negative if we're jumping backwards. If it's negative we need to press left arrow. And since we need to go BACKWARDS, we'll need to press back one extra time.
+      for (let i = 0; i < Math.abs(numTimesToPressArrow + (numTimesToPressArrow < 0 ? 1 : 0)); i++) {
+        KeyboardHelper.keyPresss(numTimesToPressArrow > 0 ? 39 : 37, false, false, false);
+      }
+      if (numTimesToPressArrow !== 0) {
+        KeyboardHelper.keyPresss(32, false, false, false);
+      }
+    }
+    else {
+      if (location.href.toLowerCase().indexOf('youtube') > -1) {
+        this.video.currentTime = time;
+      }
+      else {
+        this.video.pause();
+        this.video.currentTime = time;
+        this.video.play();
+      }
+    }
+  }
+
+  closedCaptionCensor() {
+    let foundWords = false;
     this.jQuery('.timedTextWindow, .player-timedtext-text-container').contents().each((index, x) => {
       let contents = x.innerText;
       let censorMe = contents.match(this.badWordsRegEx) !== null;
       if (censorMe) {
         contents = contents.replace(this.badWordsRegEx, '(CENSORED)');
         this.jQuery(x).html(contents.replace('\n', '<br>'));
-        this.video.muted = shouldMute = true;
-        console.info('MUTE!');
+        foundWords = true;
       }
     });
+    return foundWords;
+  }
+
+  autoMute() {
+    let shouldMute = this.closedCaptionCensor();
     this.video.muted = shouldMute;
   }
 
@@ -87,12 +132,12 @@ class OpenAngel {
   }
 
   setupControls() {
-    if (location.href.toLowerCase().indexOf('netflix.com/watch') === -1 && location.href.toLowerCase().indexOf('amazon') === -1) {
+    if (!this.netflix && location.href.toLowerCase().indexOf('amazon') === -1) {
       return;
     }
 
     if (this.jQuery('#openangelcontrols').length === 0) {
-      if (location.href.toLowerCase().indexOf('netflix.com/watch') > -1 || location.href.toLowerCase().indexOf('amazon') > -1) {
+      if (this.netflix || location.href.toLowerCase().indexOf('amazon') > -1) {
         this.jQuery('body').append(`<iframe id='openangelcontrols' src="chrome-extension://${this.extensionId}/html/controls/controls.html"></iframe>`);
       }
       else if (location.href.toLowerCase().indexOf('youtube') > -1) {
@@ -101,7 +146,7 @@ class OpenAngel {
       this.controlsWindow = this.jQuery('#openangelcontrols').get(0).contentWindow;
     }
     else {
-      if (location.href.toLowerCase().indexOf('netflix.com/watch') > -1 || location.href.toLowerCase().indexOf('amazon') > -1) {
+      if (this.netflix || location.href.toLowerCase().indexOf('amazon') > -1) {
         this.jQuery(this.video).css({height: 'calc(100% - 55px)', top: '55px'});
         this.jQuery('#netflix-player .player-back-to-browsing').css({'top': '1em'});
         this.jQuery('.webPlayer>.overlaysContainer', '').css({'top': '20px'});
@@ -117,21 +162,29 @@ class OpenAngel {
     this.serviceId = '';
     window.clearInterval(this.timer);
     this.video = null;
+    this.closedCaptionUrl = '';
     this.entries = [];
 
     if (location.href.toLowerCase().includes('netflix.com/watch/')) {
       let netflixId = location.href.match(/netflix.com\/watch\/(\d+)/)[1];
       this.serviceId = netflixId;
       this.service = 'netflixid';
+      this.netflix = true;
     }
     else if (location.href.toLowerCase().includes('amazon.com/') && location.href.match(/\/dp\/(.+?)\//)) {
       let amazonId = location.href.match(/\/dp\/(.+?)\//)[1];
+      this.amazon = true;
       this.serviceId = amazonId;
       this.service = 'amazonid';
     }
     if (this.serviceId !== '') {
-      this.jQuery.getJSON(`//ms001592indfw0001.serverwarp.com/cgi-bin/filter/filterservice.cgi/special/filterservice?${this.service}=${this.serviceId}`, data => {
+      this.jQuery.ajax({
+          url: `//ms001592indfw0001.serverwarp.com/cgi-bin/filter/filterservice.cgi/special/filterservice?${this.service}=${this.serviceId}`,
+          type: 'get',
+          dataType: 'jsonp'
+        }).done(data => {
         if (!data.Error) {
+          data.forEach(x => x.enabled = x.enabled.toString() === 'true'); //the server returns 'false' (string) instead of false (boolean)
           this.entries = data;
           console.log('Found filters for this title');
         }
@@ -164,7 +217,8 @@ class OpenAngel {
       currentTime: this.video.currentTime,
       paused: this.video.paused,
       duration: this.video.duration,
-      entries: this.entries
+      entries: this.entries,
+      closedCaptionUrl: this.closedCaptionUrl
     };
     if (this.controlsWindow) {
       this.controlsWindow.postMessage({
@@ -175,14 +229,14 @@ class OpenAngel {
     }
     this.setupControls();
 
-    let filters = this.entries.filter(x => x.from <= this.video.currentTime && x.to >= this.video.currentTime);
+    let filters = this.entries.filter(x => x.from <= this.video.currentTime && x.to >= this.video.currentTime && x.enabled);
     if (filters.length > 0) {
       if (!filters[0].active) {
         filters[0].active = true;
         this.video.muted = true;
 
         if (filters[0].type === 'video') {
-          if (location.href.toLowerCase().indexOf('netflix') > -1) {
+          if (this.netflix) {
             this.doNetflixSkip(filters);
           }
           else {
@@ -198,6 +252,7 @@ class OpenAngel {
           this.jQuery(this.video).hide();
         }
       }
+      this.closedCaptionCensor();
       console.log('in a filter');
       this.jQuery('#whattime').text(this.video.currentTime);
     }
@@ -231,12 +286,15 @@ class OpenAngel {
     }
   }
 
-  beginFilterCheck(){
-    window.addEventListener('message', evt =>{
-      if (evt.data.from !== 'openangel'){
+  beginFilterCheck() {
+    window.addEventListener('message', evt => {
+      if (evt.data.from !== 'openangel') {
         return;
       }
-      switch(evt.data.action){
+      switch (evt.data.action) {
+        case 'closedCaptionUrl':
+          this.closedCaptionUrl = evt.data.url;
+          break;
         case 'reload':
           this.resetFilters();
           break;
@@ -255,11 +313,16 @@ class OpenAngel {
         case 'fastBackwardClicked':
           this.fastBackward();
           break;
+        case 'moveToTime':
+          this.moveToTime(evt.data.time);
+          break;
         case 'expandPopup':
           this.jQuery('#openangelcontrols').addClass('openangeloverlay');
+          this.jQuery('html').data('oldposition', this.jQuery('html').css('position')).css('position','static');
           break;
         case 'closePopup':
           this.jQuery('#openangelcontrols').removeClass('openangeloverlay');
+          this.jQuery('html').css('position',this.jQuery('html').data('oldposition'));
           break;
         default:
           console.log('unknown message:' + evt);
@@ -269,7 +332,7 @@ class OpenAngel {
   }
 }
 
-(function(jQuery){
+(function (jQuery) {
   'use strict';
   new OpenAngel(jQuery).beginFilterCheck();
 })(jQuery);
