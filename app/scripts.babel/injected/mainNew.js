@@ -35,7 +35,7 @@ class OpenAngel {
     this.extensionId = null;
     this.closedCaptionUrl = '';
     this.entries = [];
-    this.badwordlist = ['DAMN', '\\bHELL\\b', 'JESUS', 'CHRIST', '\\(CENSORED\\)'];
+    this.badwordlist = ['DAMN', '\\bHELL\\b', 'JESUS', '\\bCHRIST\\b', '\\(CENSORED\\)','\\b[A-Z]*SH--','\\b[A-Z]*FU--'];
     this.badWordsRegEx = new RegExp(this.badwordlist.join('|'), 'gi');
 
     //define escape function for regex which we'll need later
@@ -359,5 +359,6 @@ class OpenAngel {
 
 (function (jQuery) {
   'use strict';
-  new OpenAngel(jQuery).beginFilterCheck();
+  window.openangel=new OpenAngel(jQuery);
+  window.openangel.beginFilterCheck();
 })(jQuery);

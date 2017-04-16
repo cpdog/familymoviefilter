@@ -20,6 +20,7 @@
                 let id = 1;
                 let mapped = $.map(doc.find('p'), function (x) {
                   let el = $(x);
+                  el.html(el.html().replace('/>', '/> '));
                   let begin = el.attr('begin');
                   let end = el.attr('end');
 
