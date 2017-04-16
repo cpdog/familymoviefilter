@@ -5,11 +5,11 @@
 ### Todo items [Chrome Extension]
 
 - Add blur capability for editors
-- Add link to see closed captions
+- ~~Add link to see closed captions~~
   - It should highlight things that the auto editor would mute
   - It should highlight things that the current filters have added
-  - It should allow you to jump exactly to that spot in the movie
-- [Bug] Right now ALL filters are applied regardless of whether you have enabled that category or not
+  - ~~It should allow you to jump exactly to that spot in the movie~~
+- ~~[Bug] Right now ALL filters are applied regardless of whether you have enabled that category or not~~
 - Add ability to toggle filters on/off
 - Add ability to define new filters and send to the API
 - Add timeline
