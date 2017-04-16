@@ -31,6 +31,10 @@
 
 
       <div class="btn-group navbar-btn ">
+        <button type="button" class="btn btn-default" ng-click="vm.frameBackward()" ng-hide="vm.currentStatus.netflix">
+          <i class="fa fa-step-backward"></i>
+        </button>
+
         <button type="button" class="btn btn-default" ng-click="vm.fastBackward()">
           <i class="fa fa-fast-backward"></i>
         </button>
@@ -40,6 +44,10 @@
         </button>
         <button type="button" class="btn btn-default" ng-click="vm.fastForward()">
           <i class="fa fa-fast-forward"></i>
+        </button>
+
+        <button type="button" class="btn btn-default" ng-click="vm.frameForward()" ng-hide="vm.currentStatus.netflix">
+          <i class="fa fa-step-forward"></i>
         </button>
 
         <button ng-if="vm.currentStatus.entries.length>0" type="button" class="btn btn-default" uib-tooltip="Reload filters" tooltip-placement="right" ng-click="vm.reloadFilters()">

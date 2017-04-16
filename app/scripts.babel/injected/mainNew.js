@@ -59,8 +59,16 @@ class OpenAngel {
       KeyboardHelper.keyPresss(32, false, false, false);
     }
     else{
-      this.moveToTime(this.video.currentTime+10);
+      this.moveToTime(this.video.currentTime+1);
     }
+  }
+
+  frameBackward() {
+    this.moveToTime(this.video.currentTime - 1/24);
+  }
+
+  frameForward() {
+    this.moveToTime(this.video.currentTime + 1/24);
   }
 
   fastBackward() {
@@ -69,7 +77,7 @@ class OpenAngel {
       KeyboardHelper.keyPresss(32, false, false, false);
     }
     else{
-      this.moveToTime(this.video.currentTime-10);
+      this.moveToTime(this.video.currentTime-1);
     }
   }
 
@@ -89,9 +97,12 @@ class OpenAngel {
         this.video.currentTime = time;
       }
       else {
+        let isPausedNow = this.video.paused;
         this.video.pause();
         this.video.currentTime = time;
-        this.video.play();
+        if (!isPausedNow) {
+          this.video.play();
+        }
       }
     }
   }
@@ -116,6 +127,7 @@ class OpenAngel {
   }
 
   doNetflixSkip(filters) {
+    this.jQuery(this.video).hide();
     let numTimesToPressRightArrow = (Math.floor(filters[0].to - filters[0].from) / 10) - 1;
     for (let i = 0; i < numTimesToPressRightArrow; i++) {
       KeyboardHelper.keyPresss(39, false, false, false);
@@ -157,12 +169,15 @@ class OpenAngel {
     }
   }
 
-  resetFilters() {
+  resetFilters(manual) {
+
     this.service = '';
     this.serviceId = '';
     window.clearInterval(this.timer);
     this.video = null;
-    this.closedCaptionUrl = '';
+    if (!manual) {
+      this.closedCaptionUrl = '';
+    }
     this.entries = [];
 
     if (location.href.toLowerCase().includes('netflix.com/watch/')) {
@@ -171,12 +186,13 @@ class OpenAngel {
       this.service = 'netflixid';
       this.netflix = true;
     }
-    else if (location.href.toLowerCase().includes('amazon.com/') && location.href.match(/\/dp\/(.+?)\//)) {
-      let amazonId = location.href.match(/\/dp\/(.+?)\//)[1];
+    else if (location.href.toLowerCase().includes('amazon.com/') && location.href.match(/\/dp\/(.+?)(\/|$|\?)/)) {
+      let amazonId = location.href.match(/\/dp\/(.+?)(\/|$|\?)/)[1];
       this.amazon = true;
       this.serviceId = amazonId;
       this.service = 'amazonid';
     }
+
     if (this.serviceId !== '') {
       this.jQuery.ajax({
           url: `//ms001592indfw0001.serverwarp.com/cgi-bin/filter/filterservice.cgi/special/filterservice?${this.service}=${this.serviceId}`,
@@ -218,6 +234,8 @@ class OpenAngel {
       paused: this.video.paused,
       duration: this.video.duration,
       entries: this.entries,
+      amazon: this.amazon,
+      netflix: this.netflix,
       closedCaptionUrl: this.closedCaptionUrl
     };
     if (this.controlsWindow) {
@@ -249,7 +267,6 @@ class OpenAngel {
               this.video.play();
             }
           }
-          this.jQuery(this.video).hide();
         }
       }
       this.closedCaptionCensor();
@@ -262,8 +279,10 @@ class OpenAngel {
         activeFilters[0].active = false;
         this.video.muted = false;
         this.video.playbackRate = 1;
-        this.jQuery(this.video).show();
-        this.jQuery('#censorme').remove();
+        if (this.netflix) {
+          this.jQuery(this.video).show();
+          this.jQuery('#censorme').remove();
+        }
       }
       else {
         this.autoMute();
@@ -296,7 +315,7 @@ class OpenAngel {
           this.closedCaptionUrl = evt.data.url;
           break;
         case 'reload':
-          this.resetFilters();
+          this.resetFilters(true);
           break;
         case 'loadsettings':
           this.settings = evt.data.settings;
@@ -313,6 +332,12 @@ class OpenAngel {
         case 'fastBackwardClicked':
           this.fastBackward();
           break;
+        case 'frameForwardClicked':
+          this.frameForward();
+          break;
+        case 'frameBackwardClicked':
+          this.frameBackward();
+          break;
         case 'moveToTime':
           this.moveToTime(evt.data.time);
           break;
@@ -328,7 +353,7 @@ class OpenAngel {
           console.log('unknown message:' + evt);
       }
     });
-    jQuery(() => this.resetFilters());
+    jQuery(() => this.resetFilters(false));
   }
 }
 

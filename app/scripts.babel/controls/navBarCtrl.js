@@ -32,6 +32,14 @@
         parent.postMessage({ action: 'fastBackwardClicked', from: 'openangel'}, '*');
       };
 
+      vm.frameForward = function(){
+        parent.postMessage({ action: 'frameForwardClicked', from: 'openangel'}, '*');
+      };
+
+      vm.frameBackward = function(){
+        parent.postMessage({ action: 'frameBackwardClicked', from: 'openangel'}, '*');
+      };
+
       vm.closePopup = function(){
         vm.controlsFullScreen = false;
         $state.go('app.home');
