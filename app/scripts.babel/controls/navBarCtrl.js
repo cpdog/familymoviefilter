@@ -4,11 +4,17 @@
     .module('openAngel')
     .controller('NavbarCtrl', function($scope, videoStateService, $state) {
       var vm = this;
+      vm.blurAmount = 0;
       vm.currentStatus = {currentTime: 223.2, entries: [{test:'stuff'}]};
       vm.controlsFullScreen = false;
 
       vm.getCurrentStatus = function () {
         return vm.currentStatus;
+      };
+
+      vm.blurVideo = function() {
+        vm.blurAmount = vm.blurAmount === 100 ? 0 : vm.blurAmount + 20;
+        parent.postMessage({ action: 'blurVideo', from: 'openangel', blur:vm.blurAmount}, '*');
       };
 
       videoStateService.subscribe($scope, function(){

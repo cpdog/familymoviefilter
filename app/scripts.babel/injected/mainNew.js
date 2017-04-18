@@ -294,6 +294,10 @@ class OpenAngel {
     }
   }
 
+  blurVideo(blurAmount){
+    this.jQuery(this.video).css({filter: `blur(${blurAmount}px)`});
+  }
+
   togglePlayPause() {
     if (this.video) {
       if (this.video.paused) {
@@ -325,6 +329,9 @@ class OpenAngel {
           break;
         case 'playPauseClicked':
           this.togglePlayPause();
+          break;
+        case 'blurVideo':
+          this.blurVideo(evt.data.blur);
           break;
         case 'fastForwardClicked':
           this.fastForward();
