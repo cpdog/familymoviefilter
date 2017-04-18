@@ -4,7 +4,7 @@
 
 ### Todo items [Chrome Extension]
 
-- Add blur capability for editors
+- ~~Add blur capability for editors~~
 - ~~Add link to see closed captions~~
   - It should highlight things that the auto editor would mute
   - It should highlight things that the current filters have added
