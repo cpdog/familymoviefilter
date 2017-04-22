@@ -1,4 +1,5 @@
 $icon-font-path: "../bower_components/bootstrap-sass/assets/fonts/bootstrap/";
+
 @import "themes/superhero/variables";
 // bower:scss
 @import "../bower_components/bootstrap-sass/assets/stylesheets/_bootstrap.scss";
@@ -53,3 +54,59 @@ tr.filterEnabled td.durationCell{
 table.filterTable{
   font-size:16px;
 }
+
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 26px;
+  input {
+    margin-left:-9999px;
+  }
+
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: $input-bg-disabled;
+    transition: .4s;
+  }
+
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 4px;
+    bottom: 2px;
+    background-color: white;
+    transition: .4s;
+  }
+
+  input:checked + .slider {
+    background-color: $btn-primary-bg;
+  }
+
+  input:focus + .slider {
+    box-shadow: 0 0 10px $btn-primary-bg;
+  }
+
+  input:checked + .slider:before {
+    transform: translateX(30px);
+  }
+
+  .slider.round {
+    border-radius: 34px;
+  }
+
+  .slider.round:before {
+    border-radius: 50%;
+  }
+}
+
+
+

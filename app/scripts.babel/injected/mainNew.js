@@ -200,7 +200,12 @@ class OpenAngel {
           dataType: 'jsonp'
         }).done(data => {
         if (!data.Error) {
-          data.forEach(x => x.enabled = x.enabled.toString() === 'true'); //the server returns 'false' (string) instead of false (boolean)
+          data.forEach(x => {
+              x.enabled = x.enabled.toString() === 'true';
+              x.id = x.from + '_' + x.to + x.category; //give a unique id for the time being...
+            }
+          ); //the server returns 'false' (string) instead of false (boolean)
+
           this.entries = data;
           console.log('Found filters for this title');
         }
@@ -309,12 +314,19 @@ class OpenAngel {
     }
   }
 
+  toggleFilterEnabled(id, enabled){
+    this.entries.find(x => x.id === id).enabled = enabled;
+  }
+
   beginFilterCheck() {
     window.addEventListener('message', evt => {
       if (evt.data.from !== 'openangel') {
         return;
       }
       switch (evt.data.action) {
+        case 'toggleFilterEnabled':
+          this.toggleFilterEnabled(evt.data.filter.id, evt.data.filter.enabled);
+          break;
         case 'closedCaptionUrl':
           this.closedCaptionUrl = evt.data.url;
           break;

@@ -1,14 +1,13 @@
 <div class="panel panel-default">
-  <!-- Default panel contents -->
+
   <div class="panel-heading">Current Filters</div>
   <div class="panel-body">
     Filters that are enabled are shown <span class="filterEnabledExample">like this</span>.
   </div>
-
-  <!-- Table -->
   <table class="table table-striped table-hover filterTable">
     <thead>
     <tr>
+      <th>Enabled</th>
       <th>Level</th>
       <th>Category</th>
       <th>Comment</th>
@@ -16,7 +15,13 @@
     </tr>
     </thead>
     <tbody>
-    <tr ng-repeat="entry in vm.currentStatus.entries" ng-class="{'filterEnabled': entry.enabled}">
+    <tr ng-repeat="entry in vm.currentStatus.entries track by entry.id" ng-class="{'filterEnabled': entry.enabled}">
+      <td>
+        <label class="switch">
+          <input class="slider" type="checkbox" ng-model="entry.enabled" ng-click="vm.toggleFilterEnabled(entry)" />
+          <div class="slider round"></div>
+        </label>
+      </td>
       <td>
         <i class="fa" ng-class="entry.level=='l' ? 'fa-arrow-down text-info' : 'fa-arrow-up text-warning'"></i>
       </td>
