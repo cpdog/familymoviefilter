@@ -6,6 +6,7 @@
       let vm = this;
       vm.currentStatus = videoStateService.currentStatus();
       vm.toggleFilterEnabled = function(entry){
+        chrome.storage.local.set({['filter_' + entry.id] : entry.enabled});
         parent.postMessage({ action: 'toggleFilterEnabled', from: 'openangel', filter: entry}, '*');
       };
 

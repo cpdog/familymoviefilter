@@ -29,4 +29,9 @@ chrome.webRequest.onResponseStarted.addListener(function (details){
 
 }, {urls: ['*://*.cloudfront.net/*.dfxp']});
 
-
+chrome.runtime.onMessageExternal.addListener(function (request, sender, sendResponse) {
+  if (request.action === 'getLocalStorage') {
+    chrome.storage.local.get(request.keys, sendResponse);
+    return true;
+  }
+});

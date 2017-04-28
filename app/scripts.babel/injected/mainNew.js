@@ -201,13 +201,14 @@ class OpenAngel {
         }).done(data => {
         if (!data.Error) {
           data.forEach(x => {
-              x.enabled = x.enabled.toString() === 'true';
-              x.id = x.from + '_' + x.to + x.category; //give a unique id for the time being...
+              x.enabled = x.enabled.toString() === 'true'; //the server returns 'false' (string) instead of false (boolean)
+              x.id = x.id || this.serviceId + '_' + x.from + '_' + x.to + x.category; //give a unique id for the time being...
             }
-          ); //the server returns 'false' (string) instead of false (boolean)
-
+          );
           this.entries = data;
           console.log('Found filters for this title');
+
+          this.loadLocalFilterOverride();
         }
         else {
           console.log('No entries found for this title');
@@ -216,6 +217,19 @@ class OpenAngel {
     }
 
     this.timer = window.setInterval(() => this.filterCheck(), 100);
+  }
+
+  loadLocalFilterOverride() {
+    chrome.runtime.sendMessage(this.extensionId, {
+      action: 'getLocalStorage',
+      keys: this.entries.map(x => 'filter_' + x.id)
+    }, response => {
+      this.entries.forEach(entry => {
+        if (response['filter_' + entry.id] !== undefined) {
+          entry.enabled = response['filter_' + entry.id];
+        }
+      });
+    });
   }
 
   /** This function runs 10 times every second to check to see if we need to filter */
