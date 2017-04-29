@@ -35,7 +35,7 @@ class OpenAngel {
     this.extensionId = null;
     this.closedCaptionUrl = '';
     this.entries = [];
-    this.badwordlist = ['DAMN', '\\bHELL\\b', 'JESUS', '\\bCHRIST\\b', '\\(CENSORED\\)','\\b[A-Z]*SH--','\\b[A-Z]*FU--'];
+    this.badwordlist = ['DAMN', '\\bHELL\\b', 'JESUS', '\\bCHRIST\\b', '\\(CENSORED\\)','\\b[A-Z]*SH--','\\b[A-Z]*FU--','\\b[A-Z]*FUCK[A-Z]*\\b','\\b[A-Z]*SHIT[A-Z]*\\b','\\b[A-Z]*PISS[A-Z]*\\b'];
     this.badWordsRegEx = new RegExp(this.badwordlist.join('|'), 'gi');
 
     //define escape function for regex which we'll need later
@@ -122,8 +122,7 @@ class OpenAngel {
   }
 
   autoMute() {
-    let shouldMute = this.closedCaptionCensor();
-    this.video.muted = shouldMute;
+    this.video.muted = this.closedCaptionCensor();
   }
 
   doNetflixSkip(filters) {
@@ -181,8 +180,7 @@ class OpenAngel {
     this.entries = [];
 
     if (location.href.toLowerCase().includes('netflix.com/watch/')) {
-      let netflixId = location.href.match(/netflix.com\/watch\/(\d+)/)[1];
-      this.serviceId = netflixId;
+      this.serviceId = location.href.match(/netflix.com\/watch\/(\d+)/)[1];
       this.service = 'netflixid';
       this.netflix = true;
     }
