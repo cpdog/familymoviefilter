@@ -20,6 +20,50 @@ class KeyboardHelper {
   }
 }
 
+class ClosedCaptionDownloader {
+
+  static getClosedCaptionDataFromUrl(url) {
+    var promise = new Promise((resolve, reject) => {
+      const re = /(\d+):(\d+):(\d+)\.(\d+)/;
+      let $ = window.jQuery;
+      $.get(url).then(data => {
+        let doc = $($.parseXML(data));
+        let id = 1;
+        let mapped = $.map(doc.find('p'), function (x) {
+          let el = $(x);
+          el.html(el.html().replace('/>', '/> '));
+          let begin = el.attr('begin');
+          let end = el.attr('end');
+
+          if (begin.indexOf(':') === -1) {
+            begin = parseInt(el.attr('begin'), 10) / 10000000;
+            end = parseInt(el.attr('end'), 10) / 10000000;
+          }
+          else {
+            let result = re.exec(begin);
+            begin = (result[1] * 3600) + (result[2] * 60) + parseInt(result[3], 10) + (result[4] / 1000);
+
+            result = re.exec(end);
+            end = (result[1] * 3600) + (result[2] * 60) + parseInt(result[3], 10) + (result[4] / 1000);
+          }
+
+          return {
+            caption: el.text(),
+            start: begin,
+            end: end,
+            id: id++,
+            active: false
+          };
+        });
+        resolve(mapped);
+      }, function () {
+        reject();
+      });
+    });
+    return promise;
+  }
+}
+
 class OpenAngel {
 
   constructor(jQuery) {
@@ -34,8 +78,9 @@ class OpenAngel {
     this.video = null;
     this.extensionId = null;
     this.closedCaptionUrl = '';
+    this.closedCaptionList = [];
     this.entries = [];
-    this.badwordlist = ['DAMN', '\\bHELL\\b', 'JESUS', '\\bCHRIST\\b', '\\(CENSORED\\)','\\b[A-Z]*SH--','\\b[A-Z]*FU--','\\b[A-Z]*FUCK[A-Z]*\\b','\\b[A-Z]*SHIT[A-Z]*\\b','\\b[A-Z]*PISS[A-Z]*\\b'];
+    this.badwordlist = ['DAMN', '\\bHELL\\b', 'JESUS', '\\bCHRIST\\b', '\\(CENSORED\\)', '\\b[A-Z]*SH--', '\\b[A-Z]*FU--', '\\b[A-Z]*FUCK[A-Z]*\\b', '\\b[A-Z]*SHIT[A-Z]*\\b', '\\b[A-Z]*PISS[A-Z]*\\b'];
     this.badWordsRegEx = new RegExp(this.badwordlist.join('|'), 'gi');
 
     //define escape function for regex which we'll need later
@@ -58,17 +103,17 @@ class OpenAngel {
       KeyboardHelper.keyPresss(39, false, false, false);
       KeyboardHelper.keyPresss(32, false, false, false);
     }
-    else{
-      this.moveToTime(this.video.currentTime+1);
+    else {
+      this.moveToTime(this.video.currentTime + 1);
     }
   }
 
   frameBackward() {
-    this.moveToTime(this.video.currentTime - 1/24);
+    this.moveToTime(this.video.currentTime - 1 / 24);
   }
 
   frameForward() {
-    this.moveToTime(this.video.currentTime + 1/24);
+    this.moveToTime(this.video.currentTime + 1 / 24);
   }
 
   fastBackward() {
@@ -76,8 +121,8 @@ class OpenAngel {
       KeyboardHelper.keyPresss(37, false, false, false);
       KeyboardHelper.keyPresss(32, false, false, false);
     }
-    else{
-      this.moveToTime(this.video.currentTime-1);
+    else {
+      this.moveToTime(this.video.currentTime - 1);
     }
   }
 
@@ -172,10 +217,12 @@ class OpenAngel {
 
     this.service = '';
     this.serviceId = '';
+
     window.clearInterval(this.timer);
     this.video = null;
     if (!manual) {
       this.closedCaptionUrl = '';
+      this.closedCaptionList = [];
     }
     this.entries = [];
 
@@ -193,17 +240,18 @@ class OpenAngel {
 
     if (this.serviceId !== '') {
       this.jQuery.ajax({
-          url: `//ms001592indfw0001.serverwarp.com/cgi-bin/filter/filterservice.cgi/special/filterservice?${this.service}=${this.serviceId}`,
-          type: 'get',
-          dataType: 'jsonp'
-        }).done(data => {
+        url: `//ms001592indfw0001.serverwarp.com/cgi-bin/filter/filterservice.cgi/special/filterservice?${this.service}=${this.serviceId}`,
+        type: 'get',
+        dataType: 'jsonp'
+      }).done(data => {
         if (!data.Error) {
-          data.forEach(x => {
+          let theFilters = data.filters || data;
+          theFilters.forEach(x => {
               x.enabled = x.enabled.toString() === 'true'; //the server returns 'false' (string) instead of false (boolean)
               x.id = x.id || this.serviceId + '_' + x.from + '_' + x.to + x.category; //give a unique id for the time being...
             }
           );
-          this.entries = data;
+          this.entries = theFilters;
           console.log('Found filters for this title');
 
           this.loadLocalFilterOverride();
@@ -311,7 +359,7 @@ class OpenAngel {
     }
   }
 
-  blurVideo(blurAmount){
+  blurVideo(blurAmount) {
     this.jQuery(this.video).css({filter: `blur(${blurAmount}px)`});
   }
 
@@ -326,7 +374,7 @@ class OpenAngel {
     }
   }
 
-  toggleFilterEnabled(id, enabled){
+  toggleFilterEnabled(id, enabled) {
     this.entries.find(x => x.id === id).enabled = enabled;
   }
 
@@ -340,7 +388,10 @@ class OpenAngel {
           this.toggleFilterEnabled(evt.data.filter.id, evt.data.filter.enabled);
           break;
         case 'closedCaptionUrl':
-          this.closedCaptionUrl = evt.data.url;
+          if (this.closedCaptionUrl !== evt.data.url){
+            this.closedCaptionUrl = evt.data.url;
+            ClosedCaptionDownloader.getClosedCaptionDataFromUrl(this.closedCaptionUrl).then(data => this.closedCaptionList = data);
+          }
           break;
         case 'reload':
           this.resetFilters(true);
@@ -374,11 +425,11 @@ class OpenAngel {
           break;
         case 'expandPopup':
           this.jQuery('#openangelcontrols').addClass('openangeloverlay');
-          this.jQuery('html').data('oldposition', this.jQuery('html').css('position')).css('position','static');
+          this.jQuery('html').data('oldposition', this.jQuery('html').css('position')).css('position', 'static');
           break;
         case 'closePopup':
           this.jQuery('#openangelcontrols').removeClass('openangeloverlay');
-          this.jQuery('html').css('position',this.jQuery('html').data('oldposition'));
+          this.jQuery('html').css('position', this.jQuery('html').data('oldposition'));
           break;
         default:
           console.log('unknown message:' + evt);
@@ -390,6 +441,6 @@ class OpenAngel {
 
 (function (jQuery) {
   'use strict';
-  window.openangel=new OpenAngel(jQuery);
+  window.openangel = new OpenAngel(jQuery);
   window.openangel.beginFilterCheck();
 })(jQuery);

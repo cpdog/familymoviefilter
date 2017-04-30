@@ -43,14 +43,14 @@
                     id: id++,
                     active: false
                   };
-                }, function () {
-                  deferred.reject();
                 });
 
                 lastUrl = url;
                 lastEntries = mapped;
                 deferred.resolve(mapped);
 
+              }, function () {
+                deferred.reject();
               });
             }
 
