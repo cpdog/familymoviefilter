@@ -17,6 +17,11 @@
         parent.postMessage({ action: 'blurVideo', from: 'openangel', blur:vm.blurAmount}, '*');
       };
 
+      vm.copyCurrentTime = function (){
+        document.getElementById('clipTime').select();
+        document.execCommand('copy');
+      };
+
       videoStateService.subscribe($scope, function(){
         vm.currentStatus = videoStateService.currentStatus();
         $scope.$apply();

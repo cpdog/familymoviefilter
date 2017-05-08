@@ -51,10 +51,21 @@ tr.filterEnabled td.durationCell{
   cursor: pointer;
 }
 
+#copyTimeLink{
+  cursor: pointer;
+  color:$btn-primary-color;
+  text-decoration: underline;
+}
+
 table.filterTable{
   font-size:16px;
 }
 
+.navbar-brand img{
+  float:left;
+  margin:-12px;
+  margin-right:5px;
+}
 
 .switch {
   position: relative;

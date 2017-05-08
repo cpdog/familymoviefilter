@@ -24,6 +24,7 @@
   <div class="container" ng-cloak>
     <div class="navbar-header">
       <a class="navbar-brand" href="#">
+        <img src="/images/icon-48.png">
         Family Movie Filters
       </a>
     </div>
@@ -63,7 +64,8 @@
 
 
       <div class="well well-sm pull-right status-well" id="timeStatus">
-        {{vm.currentStatus.currentTime.toFixed(6) }} | {{vm.currentStatus.currentTime | formatSeconds}} /
+        <input type="text" style="position: absolute; top:-100px" id="clipTime" value="{{vm.currentStatus.currentTime.toFixed(6) }}"/>
+        <a id="copyTimeLink" ng-click="vm.copyCurrentTime()" uib-tooltip="Copy time to clipboard" tooltip-placement="right" class="text-primary">{{vm.currentStatus.currentTime.toFixed(6) }}</a> | {{vm.currentStatus.currentTime | formatSeconds}} /
         {{vm.currentStatus.duration| formatSeconds}}
         <i class="fa fa-clock-o fa-2x"></i>
       </div>
