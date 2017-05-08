@@ -9,6 +9,12 @@
         Auto scroll captions
       </label>
     </div>
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="vm.autoMute">
+        Only show captions that would be auto-muted
+      </label>
+    </div>
   </div>
 
   <div style="padding:10px">
@@ -19,6 +25,7 @@
         <th>Caption</th>
         <th>From</th>
         <th>To</th>
+        <th>Auto mute</th>
       </tr>
       </thead>
     </table>

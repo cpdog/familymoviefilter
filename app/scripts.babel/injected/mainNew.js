@@ -80,6 +80,7 @@ class OpenAngel {
     this.closedCaptionUrl = '';
     this.closedCaptionList = [];
     this.entries = [];
+    this.autoMuteEnabled = true;
     this.badwordlist = ['DAMN', '\\bHELL\\b', 'JESUS', '\\bCHRIST\\b', '\\(CENSORED\\)', '\\b[A-Z]*SH--', '\\b[A-Z]*FU--', '\\b[A-Z]*FUCK[A-Z]*\\b', '\\b[A-Z]*SHIT[A-Z]*\\b', '\\b[A-Z]*PISS[A-Z]*\\b'];
     this.badWordsRegEx = new RegExp(this.badwordlist.join('|'), 'gi');
 
@@ -110,6 +111,10 @@ class OpenAngel {
 
   frameBackward() {
     this.moveToTime(this.video.currentTime - 1 / 24);
+  }
+
+  toggleAutoMute(mute){
+    this.autoMuteEnabled = mute;
   }
 
   frameForward() {
@@ -167,7 +172,7 @@ class OpenAngel {
   }
 
   autoMute() {
-    this.video.muted = this.closedCaptionCensor();
+    this.video.muted = this.closedCaptionCensor() && this.autoMuteEnabled;
   }
 
   doNetflixSkip(filters) {
@@ -260,9 +265,22 @@ class OpenAngel {
           console.log('No entries found for this title');
         }
       });
+
+      this.loadAutoMuteSettings();
     }
 
     this.timer = window.setInterval(() => this.filterCheck(), 100);
+  }
+
+  loadAutoMuteSettings() {
+    chrome.runtime.sendMessage(this.extensionId, {
+      action: 'getLocalStorage',
+      keys: 'automute_' + this.serviceId
+    }, response => {
+        if (response['automute_' + this.serviceId] !== undefined) {
+          this.autoMuteEnabled = response['automute_' + this.serviceId];
+        }
+    });
   }
 
   loadLocalFilterOverride() {
@@ -301,8 +319,12 @@ class OpenAngel {
       entries: this.entries,
       amazon: this.amazon,
       netflix: this.netflix,
-      closedCaptionUrl: this.closedCaptionUrl
+      closedCaptionUrl: this.closedCaptionUrl,
+      closedCaptionList: this.closedCaptionList,
+      autoMuteEnabled: this.autoMuteEnabled,
+      serviceId: this.serviceId
     };
+
     if (this.controlsWindow) {
       this.controlsWindow.postMessage({
         action: 'currentStatus',
@@ -390,7 +412,12 @@ class OpenAngel {
         case 'closedCaptionUrl':
           if (this.closedCaptionUrl !== evt.data.url){
             this.closedCaptionUrl = evt.data.url;
-            ClosedCaptionDownloader.getClosedCaptionDataFromUrl(this.closedCaptionUrl).then(data => this.closedCaptionList = data);
+            ClosedCaptionDownloader.getClosedCaptionDataFromUrl(this.closedCaptionUrl).then(data => {
+              data.forEach(ccEntry =>{
+                ccEntry.wouldAutoMute = ccEntry.caption.match(this.badWordsRegEx) !== null;
+              });
+              this.closedCaptionList = data;
+            });
           }
           break;
         case 'reload':
@@ -419,6 +446,9 @@ class OpenAngel {
           break;
         case 'frameBackwardClicked':
           this.frameBackward();
+          break;
+        case 'toggleAutoMute':
+          this.toggleAutoMute(evt.data.mute);
           break;
         case 'moveToTime':
           this.moveToTime(evt.data.time);

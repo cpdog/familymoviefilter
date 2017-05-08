@@ -46,6 +46,11 @@
         parent.postMessage({ action: 'frameBackwardClicked', from: 'openangel'}, '*');
       };
 
+      vm.toggleAutoMute = function() {
+        chrome.storage.local.set({['automute_' + vm.currentStatus.serviceId] : !vm.currentStatus.autoMuteEnabled});
+        parent.postMessage({ action: 'toggleAutoMute', from: 'openangel', mute: !vm.currentStatus.autoMuteEnabled}, '*');
+      };
+
       vm.closePopup = function(){
         vm.controlsFullScreen = false;
         $state.go('app.home');

@@ -2,34 +2,39 @@
   'use strict';
   angular
     .module('openAngel')
-    .controller('closedCaptionListCtrl', function(closedCaptionService, videoStateService, $scope, $filter) {
+    .controller('closedCaptionListCtrl', function(videoStateService, $scope, $filter) {
       let vm = this;
-      vm.entries = [];
+      vm.entries = videoStateService.currentStatus().closedCaptionList;
       vm.autoScroll = false;
       let dt = null;
-
-      vm.url = videoStateService.currentStatus().closedCaptionUrl;
 
       $(document).off('click','.skipLink').on('click','.skipLink',function(){
         let skipTime = $(this).data('ccskip');
         parent.postMessage({ action: 'moveToTime', from: 'openangel', 'time': skipTime}, '*');
       });
 
-      closedCaptionService.getClosedCaptionDataFromUrl(videoStateService.currentStatus().closedCaptionUrl).then(function (data) {
-        vm.entries = data;
-        dt = $('#closedCaptionTable').dataTable({
-          data: vm.entries,
-          ordering: false,
-          rowId: 'id',
-          columns: [
-            {data:null, render: function(data){
-              return `<a class="skipLink" data-ccskip="${data.start}">Skip to</a>`;
-            }},
-            {data: 'caption'},
-            {data: 'start', render: $filter('formatSeconds')},
-            {data: 'end', render: $filter('formatSeconds')}
-          ]
-        });
+      dt = $('#closedCaptionTable').dataTable({
+        data: vm.entries,
+        ordering: false,
+        rowId: 'id',
+        columns: [
+          {data:null, render: function(data){
+            return `<a class="skipLink" data-ccskip="${data.start}">Skip to</a>`;
+          }},
+          {data: 'caption'},
+          {data: 'start', render: $filter('formatSeconds')},
+          {data: 'end', render: $filter('formatSeconds')},
+          {data: 'wouldAutoMute', render: x => x ? 'Yes' : 'No'}
+        ]
+      });
+
+      $scope.$watch('vm.autoMute', function(){
+        if (vm.autoMute) {
+          dt.api().column(4).search('Yes').draw();
+        }
+        else{
+          dt.api().column(4).search('').draw();
+        }
       });
 
       videoStateService.subscribe($scope, function () {

@@ -31,22 +31,22 @@
 
 
       <div class="btn-group navbar-btn ">
-        <button type="button" class="btn btn-default" ng-click="vm.frameBackward()" ng-hide="vm.currentStatus.netflix">
+        <button type="button" class="btn btn-default" ng-click="vm.frameBackward()" ng-hide="vm.currentStatus.netflix" uib-tooltip="Frame backwards" tooltip-placement="left">
           <i class="fa fa-step-backward"></i>
         </button>
 
-        <button type="button" class="btn btn-default" ng-click="vm.fastBackward()">
+        <button type="button" class="btn btn-default" ng-click="vm.fastBackward()" uib-tooltip="Back 1s" tooltip-placement="left">
           <i class="fa fa-fast-backward"></i>
         </button>
         <button type="button" class="btn btn-default" ng-click="vm.playPause()">
           <i class="fa fa-pause" ng-if="!vm.currentStatus.paused"></i>
           <i class="fa fa-play" ng-if="vm.currentStatus.paused"></i>
         </button>
-        <button type="button" class="btn btn-default" ng-click="vm.fastForward()">
+        <button type="button" class="btn btn-default" ng-click="vm.fastForward()" uib-tooltip="Forwards 1s" tooltip-placement="right">
           <i class="fa fa-fast-forward"></i>
         </button>
 
-        <button type="button" class="btn btn-default" ng-click="vm.frameForward()" ng-hide="vm.currentStatus.netflix">
+        <button type="button" class="btn btn-default" ng-click="vm.frameForward()" ng-hide="vm.currentStatus.netflix" uib-tooltip="Frame forwards" tooltip-placement="left">
           <i class="fa fa-step-forward"></i>
         </button>
 
@@ -55,8 +55,10 @@
         </button>
 
         <button ng-if="vm.currentStatus.closedCaptionUrl" class="btn btn-default" ng-click="vm.showClosedCaptionList()"><i class="fa fa-cc"></i></button>
+
         <button class="btn btn-default" ng-click="vm.blurVideo()"><i class="fa fa-eye-slash"></i></button>
 
+        <button uib-tooltip="Toggle Automute" tooltip-placement="right" class="btn btn-default" ng-click="vm.toggleAutoMute()"><i class="fa" ng-class="!vm.currentStatus.autoMuteEnabled ? 'fa-volume-off' : 'fa-volume-up'"></i></button>
       </div>
 
 
