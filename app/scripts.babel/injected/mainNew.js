@@ -393,7 +393,7 @@ class OpenAngel {
   }
 
   blurVideo(blurAmount) {
-    this.jQuery(this.video).css({filter: `blur(${blurAmount}px)`});
+    this.video.style.setProperty('filter', `blur(${blurAmount}px)`, 'important');
   }
 
   togglePlayPause() {
@@ -425,6 +425,9 @@ class OpenAngel {
             this.closedCaptionUrl = evt.data.url;
             ClosedCaptionDownloader.getClosedCaptionDataFromUrl(this.closedCaptionUrl).then(data => {
               data.forEach(ccEntry =>{
+                if ((ccEntry.caption.startsWith('(') || ccEntry.caption.startsWith('[')) && (ccEntry.caption.endsWith(')') || ccEntry.caption.startsWith(']')) ) {
+                  return; //ignore closed captions that look like: [GUNSHOT] or (GUNSHOT).
+                }
                 ccEntry.wouldAutoMute = ccEntry.caption.match(this.badWordsRegEx) !== null;
               });
               this.closedCaptionList = data;
