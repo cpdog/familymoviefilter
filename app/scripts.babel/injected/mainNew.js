@@ -158,17 +158,28 @@ class OpenAngel {
   }
 
   closedCaptionCensor() {
-    let foundWords = false;
-    this.jQuery('.timedTextWindow, .player-timedtext-text-container').contents().each((index, x) => {
-      let contents = x.innerText;
-      let censorMe = contents.match(this.badWordsRegEx) !== null;
-      if (censorMe) {
-        contents = contents.replace(this.badWordsRegEx, '(CENSORED)');
-        this.jQuery(x).html(contents.replace('\n', '<br>'));
-        foundWords = true;
+    var autoMuteList = this.closedCaptionList.filter(entry => entry.wouldAutoMute && entry.start <= this.video.currentTime && entry.end >= this.video.currentTime);
+
+    if (autoMuteList.length > 0) {
+      this.jQuery('.timedTextWindow, .player-timedtext-text-container').contents().each((index, x) => {
+        let contents = x.innerText;
+        let censorMe = contents.match(this.badWordsRegEx) !== null;
+        if (censorMe) {
+          contents = contents.replace(this.badWordsRegEx, '(CENSORED)');
+          this.jQuery(x).html(contents.replace('\n', '<br>'));
+        }
+      });
+
+      if (this.entries.length > 0) {
+        let minCCEntryTime = autoMuteList.sort((x,y) => x.start - y.start)[0].start;
+        let maxCCEntryTime = autoMuteList.sort((x,y) => y.start - y.start)[0].end;
+        let filters = this.entries.filter(x => (x.to >= minCCEntryTime && x.to <= maxCCEntryTime) || (x.from >= minCCEntryTime && x.from <= maxCCEntryTime) || (x.from <= minCCEntryTime && x.to >= maxCCEntryTime));
+        if (filters.length > 0) { //there's an active filter in play so don't auto mute
+          return false;
+        }
       }
-    });
-    return foundWords;
+    }
+    return autoMuteList.length > 0;
   }
 
   autoMute() {
@@ -236,8 +247,8 @@ class OpenAngel {
       this.service = 'netflixid';
       this.netflix = true;
     }
-    else if (location.href.toLowerCase().includes('amazon.com/') && location.href.match(/\/dp\/(.+?)(\/|$|\?)/)) {
-      let amazonId = location.href.match(/\/dp\/(.+?)(\/|$|\?)/)[1];
+    else if (location.href.toLowerCase().includes('amazon.com/') && location.href.match(/\/(dp|gp\/video\/detail)\/(.+?)(\/|$|\?)/)) {
+      let amazonId = location.href.match(/\/(dp|gp\/video\/detail)\/(.+?)(\/|$|\?)/)[2];
       this.amazon = true;
       this.serviceId = amazonId;
       this.service = 'amazonid';

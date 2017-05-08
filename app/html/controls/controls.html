@@ -58,7 +58,7 @@
 
         <button class="btn btn-default" ng-click="vm.blurVideo()"><i class="fa fa-eye-slash"></i></button>
 
-        <button uib-tooltip="Toggle Automute" tooltip-placement="right" class="btn btn-default" ng-click="vm.toggleAutoMute()"><i class="fa" ng-class="!vm.currentStatus.autoMuteEnabled ? 'fa-volume-off' : 'fa-volume-up'"></i></button>
+        <button uib-tooltip="Toggle Automute" tooltip-placement="right" ng-class="{'active': vm.currentStatus.autoMuteEnabled}" class="btn btn-default" ng-click="vm.toggleAutoMute()"><i class="fa" ng-class="vm.currentStatus.autoMuteEnabled ? 'fa-volume-off' : 'fa-volume-up'"></i></button>
       </div>
 
 
