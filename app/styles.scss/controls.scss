@@ -57,6 +57,11 @@ tr.filterEnabled td.durationCell{
   text-decoration: underline;
 }
 
+.anchorLink{
+  text-decoration: underline;
+  cursor: help;
+}
+
 table.filterTable{
   font-size:16px;
 }
@@ -119,5 +124,7 @@ table.filterTable{
   }
 }
 
-
+div.tooltip-inner {
+  max-width: 350px;
+}
 

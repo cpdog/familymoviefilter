@@ -91,7 +91,7 @@ class OpenAngel {
 
     jQuery.get('https://raw.githubusercontent.com/LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words/master/en').done(data => {
       let badWordsFromWeb = new Set(data.split('\n'));
-      let maybeOkWords = new Set(['swastika']);
+      let maybeOkWords = new Set(['swastika','voyeur','undressing','tushy','tied up','taste my','tainted love','swinger','snowballing','snatch','smut','nude','nudity','escort']);
       maybeOkWords.forEach(key => badWordsFromWeb.delete(key));
 
       this.badwordlist = this.badwordlist.concat([...badWordsFromWeb].map(x => '\\b' + RegExp.escape(x) + 's?\\b')).filter(x => x !== '\\bs?\\b' && x !== null);

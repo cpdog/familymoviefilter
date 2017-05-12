@@ -59,7 +59,8 @@
 
         <button class="btn btn-default" ng-click="vm.blurVideo()"><i class="fa fa-eye-slash"></i></button>
 
-        <button uib-tooltip="Toggle Automute" tooltip-placement="right" ng-class="{'active': vm.currentStatus.autoMuteEnabled}" class="btn btn-default" ng-click="vm.toggleAutoMute()"><i class="fa" ng-class="vm.currentStatus.autoMuteEnabled ? 'fa-volume-off' : 'fa-volume-up'"></i></button>
+        <button ng-if="vm.currentStatus.closedCaptionUrl" uib-tooltip="Toggle Automute" tooltip-placement="right" ng-class="{'active': vm.currentStatus.autoMuteEnabled}" class="btn btn-default" ng-click="vm.toggleAutoMute()"><i class="fa" ng-class="vm.currentStatus.autoMuteEnabled ? 'fa-volume-off' : 'fa-volume-up'"></i></button>
+
       </div>
 
 
@@ -77,6 +78,10 @@
         <i ng-if="vm.currentStatus.entries.length == 0" class="fa fa-times-circle-o fa-2x text-danger"></i>
       </div>
 
+      <div class="well well-sm pull-right status-well" ng-if="vm.currentStatus.entries.length === 0 && !vm.currentStatus.closedCaptionUrl">
+        <a class="anchorLink text-warning" uib-tooltip="Subtitles must be loaded for AutoMute to function. After they are loaded, they may be turned off." tooltip-placement="left">Subtitles Unloaded</a>
+        <i class="fa fa-cc fa-2x text-danger"></i>
+      </div>
     </div>
   </div>
 </nav>
