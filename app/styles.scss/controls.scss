@@ -51,7 +51,7 @@ tr.filterEnabled td.durationCell{
   cursor: pointer;
 }
 
-#copyTimeLink{
+#copyTimeLink, .linky{
   cursor: pointer;
   color:$btn-primary-color;
   text-decoration: underline;
@@ -70,6 +70,10 @@ table.filterTable{
   float:left;
   margin:-12px;
   margin-right:5px;
+}
+
+.form-inline .form-group .switch{
+  top:12px;
 }
 
 .switch {
@@ -128,3 +132,11 @@ div.tooltip-inner {
   max-width: 350px;
 }
 
+table, .table{
+  font-size: 15px;
+}
+
+label, .radio label, .checkbox label, .help-block
+{
+  font-size: 15px;
+}

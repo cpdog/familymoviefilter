@@ -8,10 +8,6 @@
       vm.currentStatus = {currentTime: 223.2, entries: [{test:'stuff'}]};
       vm.controlsFullScreen = false;
 
-      vm.getCurrentStatus = function () {
-        return vm.currentStatus;
-      };
-
       vm.blurVideo = function() {
         vm.blurAmount = vm.blurAmount === 100 ? 0 : vm.blurAmount + 20;
         parent.postMessage({ action: 'blurVideo', from: 'openangel', blur:vm.blurAmount}, '*');
@@ -74,6 +70,11 @@
 
       vm.showFilters = function(){
         $state.go('app.filterList');
+        vm.expandPopup();
+      };
+
+      vm.showFilterHelper = function(){
+        $state.go('app.filterHelper');
         vm.expandPopup();
       };
     });

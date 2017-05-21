@@ -1,0 +1,80 @@
+<div class="panel panel-default">
+
+  <div class="panel-heading">Audio Filter Creator Helper</div>
+  <div class="panel-body">
+    <div class="alert alert-warning">
+      <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+      You can use the looping feature to easily check that your audio filter mutes just the audio you want.
+      <br>
+      <strong>Note:</strong> Currently we are limited to skipping backwards in 10 seconds intervals on Netflix.
+    </div>
+    <div class="text-center">
+      <div class="form-inline">
+        <div class="form-group">
+          <label>Enable Looping</label>
+          <label class="switch">
+            <input class="slider" type="checkbox" ng-model="vm.loopSettings.enable"/>
+            <div class="slider round"></div>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label>Enable Filter</label>
+
+          <label class="switch">
+            <input class="slider" type="checkbox" ng-model="vm.loopSettings.enableFilter"/>
+            <div class="slider round"></div>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label>1/2 Speed</label>
+          <label class="switch">
+            <input class="slider" type="checkbox" ng-model="vm.loopSettings.halfSpeed"/>
+            <div class="slider round"></div>
+          </label>
+        </div>
+
+        <!--<div class="form-group">-->
+          <!--<label>Video Filter</label>-->
+          <!--<label class="switch">-->
+            <!--<input class="slider" type="checkbox" ng-model="vm.loopSettings.videoFilter"/>-->
+            <!--<div class="slider round"></div>-->
+          <!--</label>-->
+        <!--</div>-->
+      </div>
+      <div class="form-inline " style="padding-top:10px">
+        <div class="form-group">
+          <input type="text" class="form-control" id="loopStart" placeholder="Loop Start" ng-model="vm.loopSettings.loopStart">
+          <button class="btn btn-primary" ng-click="vm.loopStart()">
+            Mark
+          </button>
+        </div>
+
+        <div class="form-group">
+          <input type="text" class="form-control" id="loopEnd" placeholder="Loop End" ng-model="vm.loopSettings.loopEnd">
+          <button class="btn btn-primary" ng-click="vm.loopEnd()">Mark</button>
+        </div>
+
+        <div class="clear" style="padding-bottom: 10px"></div>
+        <div class="form-group">
+          <input type="text" class="form-control" id="filterStart" placeholder="Filter Start" ng-model="vm.loopSettings.filterStart">
+          <button class="btn btn-primary" ng-click="vm.filterStart()">Mark</button>
+          <div class="clearfix text-center">
+            <a uib-tooltip="Copy time to clipboard" ng-click="vm.copyFilterStart()" class="linky">(Copy)</a>
+          </div>
+
+        </div>
+
+        <div class="form-group">
+          <input type="text" class="form-control" id="filterEnd" placeholder="Filter End" ng-model="vm.loopSettings.filterEnd">
+          <button class="btn btn-primary" ng-click="vm.filterEnd()">Mark</button>
+          <div class="clearfix text-center">
+            <a uib-tooltip="Copy time to clipboard" ng-click="vm.copyFilterEnd()" class="linky">(Copy)</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

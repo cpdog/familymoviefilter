@@ -134,8 +134,8 @@ class OpenAngel {
   moveToTime(time) {
     if (this.netflix) {
       console.log('skpping to' + time);
-      let numTimesToPressArrow = (Math.floor(time - this.video.currentTime) / 10) - 1; //this will be negative if we're jumping backwards. If it's negative we need to press left arrow. And since we need to go BACKWARDS, we'll need to press back one extra time.
-      for (let i = 0; i < Math.abs(numTimesToPressArrow + (numTimesToPressArrow < 0 ? 1 : 0)); i++) {
+      let numTimesToPressArrow = Math.floor((time - this.video.currentTime) / 10); //this will be negative if we're jumping backwards. If it's negative we need to press left arrow.
+      for (let i = 0; i < Math.abs(numTimesToPressArrow); i++) {
         KeyboardHelper.keyPresss(numTimesToPressArrow > 0 ? 39 : 37, false, false, false);
       }
       if (numTimesToPressArrow !== 0) {
@@ -188,7 +188,7 @@ class OpenAngel {
 
   doNetflixSkip(filters) {
     this.jQuery(this.video).hide();
-    let numTimesToPressRightArrow = (Math.floor(filters[0].to - filters[0].from) / 10) - 1;
+    let numTimesToPressRightArrow = Math.floor((filters[0].to - filters[0].from) / 10);
     for (let i = 0; i < numTimesToPressRightArrow; i++) {
       KeyboardHelper.keyPresss(39, false, false, false);
     }
@@ -254,28 +254,42 @@ class OpenAngel {
       this.service = 'amazonid';
     }
 
-    if (this.serviceId !== '') {
-      this.jQuery.ajax({
-        url: `//ms001592indfw0001.serverwarp.com/cgi-bin/filter/filterservice.cgi/special/filterservice?${this.service}=${this.serviceId}`,
-        type: 'get',
-        dataType: 'jsonp'
-      }).done(data => {
-        if (!data.Error) {
-          let theFilters = data.filters || data;
-          theFilters.forEach(x => {
-              x.enabled = x.enabled.toString() === 'true'; //the server returns 'false' (string) instead of false (boolean)
-              x.id = x.id || this.serviceId + '_' + x.from + '_' + x.to + x.category; //give a unique id for the time being...
-            }
-          );
-          this.entries = theFilters;
-          console.log('Found filters for this title');
 
-          this.loadLocalFilterOverride();
+    if (this.serviceId !== '') {
+
+      $(() => {
+        let allIds = new Set(); //amazon has more than one ID per movie for different qualities etc.
+        allIds.add(this.serviceId);
+        if (this.amazon){
+          $('.mwtw-wrapper input[data-asin]').each(function(x){
+            allIds.add($(this).data('asin'));
+          });
         }
-        else {
-          console.log('No entries found for this title');
-        }
+        let allIdString = [...allIds].join(',');
+        this.jQuery.ajax({
+          url: `//ms001592indfw0001.serverwarp.com/cgi-bin/filter/filterservice.cgi/special/filterservice?${this.service}=${allIdString}`,
+          type: 'get',
+          dataType: 'jsonp'
+        }).done(data => {
+          if (!data.Error) {
+            let theFilters = data.filters || data;
+            theFilters.forEach(x => {
+                x.enabled = x.enabled.toString() === 'true'; //the server returns 'false' (string) instead of false (boolean)
+                x.id = x.id || this.serviceId + '_' + x.from + '_' + x.to + x.category; //give a unique id for the time being...
+              }
+            );
+            this.entries = theFilters;
+            this.comment = data.comment;
+            console.log('Found filters for this title');
+
+            this.loadLocalFilterOverride();
+          }
+          else {
+            console.log('No entries found for this title');
+          }
+        });
       });
+
 
       this.loadAutoMuteSettings();
     }
@@ -333,7 +347,8 @@ class OpenAngel {
       closedCaptionUrl: this.closedCaptionUrl,
       closedCaptionList: this.closedCaptionList,
       autoMuteEnabled: this.autoMuteEnabled,
-      serviceId: this.serviceId
+      serviceId: this.serviceId,
+      comment: this.comment
     };
 
     if (this.controlsWindow) {
@@ -344,6 +359,21 @@ class OpenAngel {
       }, '*');
     }
     this.setupControls();
+
+    if (this.loopSettings && this.loopSettings.enable) {
+      this.video.playbackRate = this.loopSettings.halfSpeed ? 0.5 : 1;
+      if (this.video.currentTime >= this.loopSettings.filterStart && this.video.currentTime <= this.loopSettings.filterEnd && this.loopSettings.enableFilter){
+        this.video.muted = true;
+      }
+      else{
+        this.video.muted = false;
+      }
+
+      if (this.video.currentTime >= this.loopSettings.loopEnd && !this.video.paused){
+        this.moveToTime(this.loopSettings.loopStart);
+      }
+      return;
+    }
 
     let filters = this.entries.filter(x => x.from <= this.video.currentTime && x.to >= this.video.currentTime && x.enabled);
     if (filters.length > 0) {
@@ -467,16 +497,21 @@ class OpenAngel {
         case 'moveToTime':
           this.moveToTime(evt.data.time);
           break;
+        case 'setFilterLoopOptions':
+          this.loopSettings = evt.data.loopSettings;
+          break;
         case 'expandPopup':
           this.jQuery('#openangelcontrols').addClass('openangeloverlay');
           this.jQuery('html').data('oldposition', this.jQuery('html').css('position')).css('position', 'static');
           break;
         case 'closePopup':
+          this.loopSettings.enable=false;
+          this.video.playbackRate = 1;
           this.jQuery('#openangelcontrols').removeClass('openangeloverlay');
           this.jQuery('html').css('position', this.jQuery('html').data('oldposition'));
           break;
         default:
-          console.log('unknown message:' + evt);
+          console.log('unknown message:' + evt.data.action);
       }
     });
     jQuery(() => this.resetFilters(false));

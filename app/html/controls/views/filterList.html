@@ -2,6 +2,13 @@
 
   <div class="panel-heading">Current Filters</div>
   <div class="panel-body">
+
+    <div class="alert alert-danger alert-dismissible" role="alert" ng-if="vm.currentStatus.comment">
+      <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+      <strong>General comments from filter creator: </strong> 
+      {{vm.currentStatus.comment}}
+    </div>
+
     Filters that are enabled are shown <span class="filterEnabledExample">like this</span>.
   </div>
   <table class="table table-striped table-hover filterTable">
