@@ -23,7 +23,7 @@ class KeyboardHelper {
 class ClosedCaptionDownloader {
 
   static getClosedCaptionDataFromUrl(url) {
-    var promise = new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       const re = /(\d+):(\d+):(\d+)\.(\d+)/;
       let $ = window.jQuery;
       $.get(url).then(data => {
@@ -60,7 +60,6 @@ class ClosedCaptionDownloader {
         reject();
       });
     });
-    return promise;
   }
 }
 
@@ -83,7 +82,7 @@ class OpenAngel {
     this.autoMuteEnabled = true;
     this.badwordlist = ['DAMN', '\\bHELL\\b', 'JESUS', '\\bCHRIST\\b', '\\(CENSORED\\)', '\\b[A-Z]*SH--', '\\b[A-Z]*FU--', '\\b[A-Z]*FUCK[A-Z]*\\b', '\\b[A-Z]*SHIT[A-Z]*\\b', '\\b[A-Z]*PISS[A-Z]*\\b'];
     this.badWordsRegEx = new RegExp(this.badwordlist.join('|'), 'gi');
-
+    this.loopSettings = {enable:false};
     //define escape function for regex which we'll need later
     RegExp.escape = function (value) {
       return value.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
@@ -158,7 +157,7 @@ class OpenAngel {
   }
 
   closedCaptionCensor() {
-    var autoMuteList = this.closedCaptionList.filter(entry => entry.wouldAutoMute && entry.start <= this.video.currentTime && entry.end >= this.video.currentTime);
+    let autoMuteList = this.closedCaptionList.filter(entry => entry.wouldAutoMute && entry.start <= this.video.currentTime && entry.end >= this.video.currentTime);
 
     if (autoMuteList.length > 0) {
       this.jQuery('.timedTextWindow, .player-timedtext-text-container').contents().each((index, x) => {
@@ -195,8 +194,7 @@ class OpenAngel {
     if (numTimesToPressRightArrow > 0) {
       KeyboardHelper.keyPresss(32, false, false, false);
     }
-    let playSpeed = Math.max(Math.min(8, filters[0].to - filters[0].from), 2);
-    this.video.playbackRate = playSpeed;
+    this.video.playbackRate = Math.max(Math.min(8, filters[0].to - filters[0].from), 2);
     if (this.jQuery('#censorme').length === 0) {
       this.jQuery('body').append('<div id=\'censorme\' style=\'position:absolute; z-index:999999; background-color:black; color:white; font-size:100px; width:100%; height:100%\'>CENSORING...Skipping: <span id=\'whattime\'></span></div>');
     }
@@ -261,7 +259,7 @@ class OpenAngel {
         let allIds = new Set(); //amazon has more than one ID per movie for different qualities etc.
         allIds.add(this.serviceId);
         if (this.amazon){
-          $('.mwtw-wrapper input[data-asin]').each(function(x){
+          $('.mwtw-wrapper input[data-asin]').each(function(){
             allIds.add($(this).data('asin'));
           });
         }

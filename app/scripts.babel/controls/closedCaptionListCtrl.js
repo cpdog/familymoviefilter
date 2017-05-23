@@ -21,6 +21,9 @@
           {data:null, render: function(data){
             return `<a class="skipLink" data-ccskip="${data.start}">Skip to</a>`;
           }},
+          {data:null, render: function(data){
+            return `<a href="#!/filterHelper/${data.id}">Open in filter helper</a>`;
+          }},
           {data: 'caption'},
           {data: 'start', render: $filter('formatSeconds')},
           {data: 'end', render: $filter('formatSeconds')},
@@ -30,10 +33,10 @@
 
       $scope.$watch('vm.autoMute', function(){
         if (vm.autoMute) {
-          dt.api().column(4).search('Yes').draw();
+          dt.api().column(5).search('Yes').draw();
         }
         else{
-          dt.api().column(4).search('').draw();
+          dt.api().column(5).search('').draw();
         }
       });
 

@@ -24,8 +24,10 @@
       }).state('app.filterHelper', {
       templateUrl: 'views/filterHelper.html',
       controller: 'filterHelperCtrl as vm',
-      url:'/filterHelper'
-    })
-    ;
+      url:'/filterHelper/{ccId:int}',
+      params:{
+        ccId: null
+      }
+    });
   });
 })();
