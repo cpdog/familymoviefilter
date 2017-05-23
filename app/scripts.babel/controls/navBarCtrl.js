@@ -5,6 +5,7 @@
     .controller('NavbarCtrl', function($scope, videoStateService, $state) {
       var vm = this;
       vm.blurAmount = 0;
+      vm.playSpeed = 1;
       vm.currentStatus = {currentTime: 223.2, entries: [{test:'stuff'}]};
       vm.controlsFullScreen = false;
 
@@ -25,6 +26,11 @@
 
       vm.playPause = function() {
         parent.postMessage({ action: 'playPauseClicked', from: 'openangel'}, '*');
+      };
+
+      vm.togglePlaySpeed = function(){
+        vm.playSpeed = vm.playSpeed === 1 ? 2 : vm.playSpeed === 2 ? 0.5 : 1;
+        parent.postMessage({ action: 'playSpeed', from: 'openangel', playSpeed:vm.playSpeed}, '*');
       };
 
       vm.reloadFilters = function(){

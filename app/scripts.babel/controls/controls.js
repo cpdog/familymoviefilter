@@ -4,7 +4,8 @@
     .module('openAngel', [
       'ngAnimate',
       'ui.router',
-      'ui.bootstrap'
+      'ui.bootstrap',
+      'cfp.hotkeys'
     ]).constant('_', window._)
     .filter('formatSeconds', function () {
       return function (seconds) {

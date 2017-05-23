@@ -80,6 +80,7 @@ class OpenAngel {
     this.closedCaptionList = [];
     this.entries = [];
     this.autoMuteEnabled = true;
+    this.playSpeed = 1;
     this.badwordlist = ['DAMN', '\\bHELL\\b', 'JESUS', '\\bCHRIST\\b', '\\(CENSORED\\)', '\\b[A-Z]*SH--', '\\b[A-Z]*FU--', '\\b[A-Z]*FUCK[A-Z]*\\b', '\\b[A-Z]*SHIT[A-Z]*\\b', '\\b[A-Z]*PISS[A-Z]*\\b'];
     this.badWordsRegEx = new RegExp(this.badwordlist.join('|'), 'gi');
     this.loopSettings = {enable:false};
@@ -172,7 +173,7 @@ class OpenAngel {
       if (this.entries.length > 0) {
         let minCCEntryTime = autoMuteList.sort((x,y) => x.start - y.start)[0].start;
         let maxCCEntryTime = autoMuteList.sort((x,y) => y.start - y.start)[0].end;
-        let filters = this.entries.filter(x => (x.to >= minCCEntryTime && x.to <= maxCCEntryTime) || (x.from >= minCCEntryTime && x.from <= maxCCEntryTime) || (x.from <= minCCEntryTime && x.to >= maxCCEntryTime));
+        let filters = this.entries.filter(x => x.enabled && ((x.to >= minCCEntryTime && x.to <= maxCCEntryTime) || (x.from >= minCCEntryTime && x.from <= maxCCEntryTime) || (x.from <= minCCEntryTime && x.to >= maxCCEntryTime)));
         if (filters.length > 0) { //there's an active filter in play so don't auto mute
           return false;
         }
@@ -404,7 +405,7 @@ class OpenAngel {
       if (activeFilters.length > 0) {
         activeFilters[0].active = false;
         this.video.muted = false;
-        this.video.playbackRate = 1;
+        this.video.playbackRate = this.playSpeed;
         if (this.netflix) {
           this.jQuery(this.video).show();
           this.jQuery('#censorme').remove();
@@ -418,6 +419,11 @@ class OpenAngel {
         console.log(this.video.currentTime);
       }
     }
+  }
+
+  setPlaySpeed(speed){
+    this.playSpeed=speed;
+    this.video.playbackRate = speed;
   }
 
   blurVideo(blurAmount) {
@@ -477,6 +483,9 @@ class OpenAngel {
         case 'blurVideo':
           this.blurVideo(evt.data.blur);
           break;
+        case 'playSpeed':
+          this.setPlaySpeed(evt.data.playSpeed);
+          break;
         case 'fastForwardClicked':
           this.fastForward();
           break;
@@ -504,7 +513,7 @@ class OpenAngel {
           break;
         case 'closePopup':
           this.loopSettings.enable=false;
-          this.video.playbackRate = 1;
+          this.video.playbackRate = this.playSpeed;
           this.jQuery('#openangelcontrols').removeClass('openangeloverlay');
           this.jQuery('html').css('position', this.jQuery('html').data('oldposition'));
           break;

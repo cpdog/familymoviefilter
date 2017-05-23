@@ -8,6 +8,7 @@
   <!-- bower:css -->
   <link rel="stylesheet" href="/bower_components/components-font-awesome/css/font-awesome.css" />
   <link rel="stylesheet" href="/bower_components/datatables.net-bs/css/dataTables.bootstrap.css" />
+  <link rel="stylesheet" href="/bower_components/angular-hotkeys/build/hotkeys.css" />
   <!-- endbower -->
 
   <!-- endbuild -->
@@ -62,6 +63,10 @@
         <button ng-if="vm.currentStatus.closedCaptionUrl" uib-tooltip="Toggle Automute" tooltip-placement="right" ng-class="{'active': vm.currentStatus.autoMuteEnabled}" class="btn btn-default" ng-click="vm.toggleAutoMute()"><i class="fa" ng-class="vm.currentStatus.autoMuteEnabled ? 'fa-volume-off' : 'fa-volume-up'"></i></button>
 
         <button class="btn btn-default" ng-click="vm.showFilterHelper()"><i class="fa fa-filter"></i></button>
+
+        <button class="btn btn-default" ng-click="vm.togglePlaySpeed()" ng-if="vm.currentStatus.closedCaptionUrl"> <!-- Only ng-if because we don't have space otherwise! -->
+          {{vm.playSpeed}}x
+        </button>
       </div>
 
 
@@ -113,6 +118,7 @@
 <script src="/bower_components/bootstrap-sass/assets/javascripts/bootstrap.js"></script>
 <script src="/bower_components/datatables.net/js/jquery.dataTables.js"></script>
 <script src="/bower_components/datatables.net-bs/js/dataTables.bootstrap.js"></script>
+<script src="/bower_components/angular-hotkeys/build/hotkeys.js"></script>
 <!-- endbower -->
 <script src="/scripts/controls/dataTablesPlugin.js"></script>
 <!-- endbuild -->
