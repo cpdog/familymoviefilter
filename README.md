@@ -15,7 +15,7 @@
 - Add timeline
   - Allow you to visually see list of filters
   - Allow you to use this timeline to zoom in and get more precise scrubbing to create new filters
- - Add ability to slow down video
+ - ~~Add ability to slow down video~~
  - ~~Add ability to go frame by frame~~ (tricky in Netflix)
  - Currently filters are shown by time, probably makes sense to show in tree mode by category, then by high low: like this:
  
