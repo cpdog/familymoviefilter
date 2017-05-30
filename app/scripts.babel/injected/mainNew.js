@@ -81,7 +81,7 @@ class OpenAngel {
     this.entries = [];
     this.autoMuteEnabled = true;
     this.playSpeed = 1;
-    this.badwordlist = ['DAMN', '\\bHELL\\b', 'JESUS', '\\bCHRIST\\b', '\\(CENSORED\\)', '\\b[A-Z]*SH--', '\\b[A-Z]*FU--', '\\b[A-Z]*FUCK[A-Z]*\\b', '\\b[A-Z]*SHIT[A-Z]*\\b', '\\b[A-Z]*PISS[A-Z]*\\b'];
+    this.badwordlist = ['DAMN', '\\bHELL\\b', 'JESUS', '\\bCHRIST\\b', '\\(CENSORED\\)', '\\b[A-Z]*SH--', '\\b[A-Z]*FU--', '\\b[A-Z]*FUCK[A-Z]*\\b', '\\b[A-Z]*SHIT[A-Z]*\\b', '\\b[A-Z]*PISS[A-Z]*\\b','DICK(?! VAN)'];
     this.badWordsRegEx = new RegExp(this.badwordlist.join('|'), 'gi');
     this.loopSettings = {enable:false};
     //define escape function for regex which we'll need later
@@ -91,7 +91,7 @@ class OpenAngel {
 
     jQuery.get('https://raw.githubusercontent.com/LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words/master/en').done(data => {
       let badWordsFromWeb = new Set(data.split('\n'));
-      let maybeOkWords = new Set(['swastika','voyeur','undressing','tushy','tied up','taste my','tainted love','swinger','snowballing','snatch','smut','nude','nudity','escort']);
+      let maybeOkWords = new Set(['swastika','voyeur','undressing','tushy','tied up','taste my','tainted love','swinger','snowballing','snatch','smut','nude','nudity','escort','dick']);
       maybeOkWords.forEach(key => badWordsFromWeb.delete(key));
 
       this.badwordlist = this.badwordlist.concat([...badWordsFromWeb].map(x => '\\b' + RegExp.escape(x) + 's?\\b')).filter(x => x !== '\\bs?\\b' && x !== null);
@@ -101,8 +101,9 @@ class OpenAngel {
 
   fastForward() {
     if (this.video && this.netflix) {
-      KeyboardHelper.keyPresss(39, false, false, false);
-      KeyboardHelper.keyPresss(32, false, false, false);
+      this.netflixMoveToTime(this.video.currentTime + 1);
+      //KeyboardHelper.keyPresss(39, false, false, false);
+      //KeyboardHelper.keyPresss(32, false, false, false);
     }
     else {
       this.moveToTime(this.video.currentTime + 1);
@@ -110,37 +111,74 @@ class OpenAngel {
   }
 
   frameBackward() {
-    this.moveToTime(this.video.currentTime - 1 / 24);
+    this.moveToTime(this.video.currentTime - this.getFrameMoveAmount() / 24);
   }
 
   toggleAutoMute(mute){
     this.autoMuteEnabled = mute;
   }
 
+  getFrameMoveAmount(){
+    return this.netflix ? 2 : 1;
+  }
+
   frameForward() {
-    this.moveToTime(this.video.currentTime + 1 / 24);
+    this.moveToTime(this.video.currentTime + this.getFrameMoveAmount() / 24);
   }
 
   fastBackward() {
     if (this.video && this.netflix) {
-      KeyboardHelper.keyPresss(37, false, false, false);
-      KeyboardHelper.keyPresss(32, false, false, false);
+      this.netflixMoveToTime(this.video.currentTime - 1);
+      //KeyboardHelper.keyPresss(37, false, false, false);
+      //KeyboardHelper.keyPresss(32, false, false, false);
     }
     else {
       this.moveToTime(this.video.currentTime - 1);
     }
   }
 
+  netflixMoveToTime(time){
+      const framesPerSecond = 60;
+      $('.player-controls-wrapper').removeClass('opacity-transparent display-none');
+      $('.playback.container.hidden.klayer-ns.surface').removeClass('hidden'); //kids
+      let containerSelector = '#netflix-player .player-controls-wrapper, .row.centered.expanded.buttons-container.klayer-ns.surface';
+      let oldWidth = $(containerSelector).css('width');
+      $(containerSelector).css('width',(this.video.duration * framesPerSecond) + 'px');
+
+      let scrubber = jQuery('#scrubber-component, .klayer-slider.base.klayer-ns.surface');
+
+      let factor = time / this.video.duration;
+      let mouseX = scrubber.offset().left + Math.round(scrubber.width() * factor);
+      let mouseY = scrubber.offset().top + scrubber.height() / 2;
+
+      let eventOptions = {
+        'bubbles': true,
+        'button': 0,
+        'screenX': mouseX - jQuery(window).scrollLeft(),
+        'screenY': mouseY - jQuery(window).scrollTop(),
+        'clientX': mouseX - jQuery(window).scrollLeft(),
+        'clientY': mouseY - jQuery(window).scrollTop(),
+        'offsetX': mouseX - scrubber.offset().left,
+        'offsetY': mouseY - scrubber.offset().top,
+        'pageX': mouseX,
+        'pageY': mouseY,
+        'currentTarget': scrubber[0]
+      };
+
+      scrubber[0].dispatchEvent(new MouseEvent('mouseover', eventOptions));
+      scrubber[0].dispatchEvent(new MouseEvent('mousedown', eventOptions));
+      scrubber[0].dispatchEvent(new MouseEvent('mouseup', eventOptions));
+      scrubber[0].dispatchEvent(new MouseEvent('click', eventOptions));
+      scrubber[0].dispatchEvent(new MouseEvent('mouseout', eventOptions));
+
+      $('.player-controls-wrapper').addClass('opacity-transparent display-none');
+      $('.playback.container.hidden.klayer-ns.surface').addClass('hidden'); //kids
+      $(containerSelector).css('width',oldWidth);
+      this.controlsWindow.focus();
+  }
   moveToTime(time) {
     if (this.netflix) {
-      console.log('skpping to' + time);
-      let numTimesToPressArrow = Math.floor((time - this.video.currentTime) / 10); //this will be negative if we're jumping backwards. If it's negative we need to press left arrow.
-      for (let i = 0; i < Math.abs(numTimesToPressArrow); i++) {
-        KeyboardHelper.keyPresss(numTimesToPressArrow > 0 ? 39 : 37, false, false, false);
-      }
-      if (numTimesToPressArrow !== 0) {
-        KeyboardHelper.keyPresss(32, false, false, false);
-      }
+      this.netflixMoveToTime(time);
     }
     else {
       if (location.href.toLowerCase().indexOf('youtube') > -1) {
@@ -186,22 +224,6 @@ class OpenAngel {
     this.video.muted = this.closedCaptionCensor() && this.autoMuteEnabled;
   }
 
-  doNetflixSkip(filters) {
-    this.jQuery(this.video).hide();
-    let numTimesToPressRightArrow = Math.floor((filters[0].to - filters[0].from) / 10);
-    for (let i = 0; i < numTimesToPressRightArrow; i++) {
-      KeyboardHelper.keyPresss(39, false, false, false);
-    }
-    if (numTimesToPressRightArrow > 0) {
-      KeyboardHelper.keyPresss(32, false, false, false);
-    }
-    this.video.playbackRate = Math.max(Math.min(8, filters[0].to - filters[0].from), 2);
-    if (this.jQuery('#censorme').length === 0) {
-      this.jQuery('body').append('<div id=\'censorme\' style=\'position:absolute; z-index:999999; background-color:black; color:white; font-size:100px; width:100%; height:100%\'>CENSORING...Skipping: <span id=\'whattime\'></span></div>');
-    }
-    this.jQuery('#whattime').text(this.video.currentTime);
-  }
-
   setupControls() {
     if (!this.netflix && location.href.toLowerCase().indexOf('amazon') === -1) {
       return;
@@ -221,6 +243,7 @@ class OpenAngel {
         this.jQuery(this.video).css({height: 'calc(100% - 55px)', top: '55px'});
         this.jQuery('#netflix-player .player-back-to-browsing').css({'top': '1em'});
         this.jQuery('.webPlayer>.overlaysContainer', '').css({'top': '20px'});
+        this.jQuery('.playback-longpause-container').css('display','none');
       }
       else if (location.href.toLowerCase().indexOf('youtube') > -1) {
 
@@ -382,7 +405,7 @@ class OpenAngel {
 
         if (filters[0].type === 'video') {
           if (this.netflix) {
-            this.doNetflixSkip(filters);
+            this.netflixMoveToTime(filters[0].to);
           }
           else {
             if (location.href.toLowerCase().indexOf('youtube') > -1) {
@@ -432,11 +455,17 @@ class OpenAngel {
 
   togglePlayPause() {
     if (this.video) {
-      if (this.video.paused) {
-        this.video.play();
+      if (this.netflix){
+        KeyboardHelper.keyPresss(32, false, false, false);
+        $('.player-controls-wrapper').addClass('opacity-transparent display-none');
       }
       else {
-        this.video.pause();
+        if (this.video.paused) {
+          this.video.play();
+        }
+        else {
+          this.video.pause();
+        }
       }
     }
   }

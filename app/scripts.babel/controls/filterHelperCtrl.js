@@ -19,7 +19,6 @@
         parent.postMessage({action: 'moveToTime', from: 'openangel', 'time': vm.loopSettings.loopStart}, '*');
       }
 
-
       if ($stateParams.ccId) {
         vm.ccId = $stateParams.ccId;
         vm.closedCaption = vm.currentStatus.closedCaptionList.find(x => x.id === vm.ccId);
