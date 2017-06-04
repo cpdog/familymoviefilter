@@ -81,7 +81,7 @@ class OpenAngel {
     this.entries = [];
     this.autoMuteEnabled = true;
     this.playSpeed = 1;
-    this.badwordlist = ['DAMN', '\\bHELL\\b', 'JESUS', '\\bCHRIST\\b', '\\(CENSORED\\)', '\\b[A-Z]*SH--', '\\b[A-Z]*FU--', '\\b[A-Z]*FUCK[A-Z]*\\b', '\\b[A-Z]*SHIT[A-Z]*\\b', '\\b[A-Z]*PISS[A-Z]*\\b','DICK(?! VAN)'];
+    this.badwordlist = ['OH,? GOD','OH,? MY GOD','^\\s*-?GOD!','BADASS','GODDAMN','DAMN', '\\bHELL\\b', 'JESUS', '\\bCHRIST\\b', '\\(CENSORED\\)', '\\b[A-Z]*SH--', '\\b[A-Z]*FU--', '\\b[A-Z]*FUCK[A-Z]*\\b', '\\b[A-Z]*SHIT[A-Z]*\\b', '\\b[A-Z]*PISS[A-Z]*\\b','DICK(?! VAN)'];
     this.badWordsRegEx = new RegExp(this.badwordlist.join('|'), 'gi');
     this.loopSettings = {enable:false};
     //define escape function for regex which we'll need later
@@ -488,7 +488,7 @@ class OpenAngel {
             this.closedCaptionUrl = evt.data.url;
             ClosedCaptionDownloader.getClosedCaptionDataFromUrl(this.closedCaptionUrl).then(data => {
               data.forEach(ccEntry =>{
-                if ((ccEntry.caption.startsWith('(') || ccEntry.caption.startsWith('[')) && (ccEntry.caption.endsWith(')') || ccEntry.caption.startsWith(']')) ) {
+                if ((ccEntry.caption.startsWith('(') || ccEntry.caption.startsWith('[')) || (ccEntry.caption.endsWith(')') || ccEntry.caption.startsWith(']')) ) {
                   return; //ignore closed captions that look like: [GUNSHOT] or (GUNSHOT).
                 }
                 ccEntry.wouldAutoMute = ccEntry.caption.match(this.badWordsRegEx) !== null;
