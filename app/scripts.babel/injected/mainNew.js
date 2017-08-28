@@ -27,9 +27,9 @@ class ClosedCaptionDownloader {
       const re = /(\d+):(\d+):(\d+)\.(\d+)/;
       let $ = window.jQuery;
       $.get(url).then(data => {
-        let doc = $($.parseXML(data));
+        let doc = $.parseXML(data);
         let id = 1;
-        let mapped = $.map(doc.find('p'), function (x) {
+        let mapped = $.map(doc.querySelectorAll('p'), function (x) {
           let el = $(x);
           el.html(el.html().replace('/>', '/> '));
           let begin = el.attr('begin');
@@ -66,6 +66,7 @@ class ClosedCaptionDownloader {
 class OpenAngel {
 
   constructor(jQuery) {
+    this.weirdAmazonBuffer = 10;
     this.jQuery = jQuery;
     this.settings = {};
     this.currentStatus = {};
@@ -99,19 +100,31 @@ class OpenAngel {
     });
   }
 
+  getCurrentTime(){
+    if (!this.video){
+      return 0;
+    }
+    if (this.amazon){
+      return this.video.currentTime < 10 ? this.video.currentTime : this.video.currentTime - this.weirdAmazonBuffer;
+    }
+    else{
+      return this.video.currentTime;
+    }
+  }
+
   fastForward() {
     if (this.video && this.netflix) {
-      this.netflixMoveToTime(this.video.currentTime + 1);
+      this.netflixMoveToTime(this.getCurrentTime() + 1);
       //KeyboardHelper.keyPresss(39, false, false, false);
       //KeyboardHelper.keyPresss(32, false, false, false);
     }
     else {
-      this.moveToTime(this.video.currentTime + 1);
+      this.moveToTime(this.getCurrentTime() + 1);
     }
   }
 
   frameBackward() {
-    this.moveToTime(this.video.currentTime - this.getFrameMoveAmount() / 24);
+    this.moveToTime(this.getCurrentTime() - this.getFrameMoveAmount() / 24);
   }
 
   toggleAutoMute(mute){
@@ -123,17 +136,17 @@ class OpenAngel {
   }
 
   frameForward() {
-    this.moveToTime(this.video.currentTime + this.getFrameMoveAmount() / 24);
+    this.moveToTime(this.getCurrentTime() + this.getFrameMoveAmount() / 24);
   }
 
   fastBackward() {
     if (this.video && this.netflix) {
-      this.netflixMoveToTime(this.video.currentTime - 1);
+      this.netflixMoveToTime(this.getCurrentTime() - 1);
       //KeyboardHelper.keyPresss(37, false, false, false);
       //KeyboardHelper.keyPresss(32, false, false, false);
     }
     else {
-      this.moveToTime(this.video.currentTime - 1);
+      this.moveToTime(this.getCurrentTime() - 1);
     }
   }
 
@@ -177,6 +190,7 @@ class OpenAngel {
       this.controlsWindow.focus();
   }
   moveToTime(time) {
+    time = this.amazon ? time + this.weirdAmazonBuffer : time; //amazon does something WEIRD where there's a 10 seconds difference
     if (this.netflix) {
       this.netflixMoveToTime(time);
     }
@@ -196,7 +210,7 @@ class OpenAngel {
   }
 
   closedCaptionCensor() {
-    let autoMuteList = this.closedCaptionList.filter(entry => entry.wouldAutoMute && entry.start <= this.video.currentTime && entry.end >= this.video.currentTime);
+    let autoMuteList = this.closedCaptionList.filter(entry => entry.wouldAutoMute && entry.start <= this.getCurrentTime() && entry.end >= this.getCurrentTime());
 
     if (autoMuteList.length > 0) {
       this.jQuery('.timedTextWindow, .player-timedtext-text-container').contents().each((index, x) => {
@@ -269,8 +283,8 @@ class OpenAngel {
       this.service = 'netflixid';
       this.netflix = true;
     }
-    else if (location.href.toLowerCase().includes('amazon.com/') && location.href.match(/\/(dp|gp\/video\/detail)\/(.+?)(\/|$|\?)/)) {
-      let amazonId = location.href.match(/\/(dp|gp\/video\/detail)\/(.+?)(\/|$|\?)/)[2];
+    else if (location.href.toLowerCase().includes('amazon.com/') && location.href.match(/\/(dp|gp\/video\/detail|gp\/product)\/(.+?)(\/|$|\?)/)) {
+      let amazonId = location.href.match(/\/(dp|gp\/video\/detail|gp\/product)\/(.+?)(\/|$|\?)/)[2];
       this.amazon = true;
       this.serviceId = amazonId;
       this.service = 'amazonid';
@@ -355,12 +369,12 @@ class OpenAngel {
     if (!this.video) {
       return;
     }
-    else if (this.video.currentTime === 0) {
+    else if (this.getCurrentTime() === 0) {
       this.video = this.jQuery('video:last').get(0);
     }
 
     this.currentStatus = {
-      currentTime: this.video.currentTime,
+      currentTime: this.getCurrentTime(),
       paused: this.video.paused,
       duration: this.video.duration,
       entries: this.entries,
@@ -384,25 +398,24 @@ class OpenAngel {
 
     if (this.loopSettings && this.loopSettings.enable) {
       this.video.playbackRate = this.loopSettings.halfSpeed ? 0.5 : 1;
-      if (this.video.currentTime >= this.loopSettings.filterStart && this.video.currentTime <= this.loopSettings.filterEnd && this.loopSettings.enableFilter){
+      if (this.getCurrentTime() >= this.loopSettings.filterStart && this.getCurrentTime() <= this.loopSettings.filterEnd && this.loopSettings.enableFilter){
         this.video.muted = true;
       }
       else{
         this.video.muted = false;
       }
 
-      if (this.video.currentTime >= this.loopSettings.loopEnd && !this.video.paused){
+      if (this.getCurrentTime() >= this.loopSettings.loopEnd && !this.video.paused){
         this.moveToTime(this.loopSettings.loopStart);
       }
       return;
     }
 
-    let filters = this.entries.filter(x => x.from <= this.video.currentTime && x.to >= this.video.currentTime && x.enabled);
+    let filters = this.entries.filter(x => x.from <= this.getCurrentTime() && x.to >= this.getCurrentTime() && x.enabled);
     if (filters.length > 0) {
       if (!filters[0].active) {
         filters[0].active = true;
         this.video.muted = true;
-
         if (filters[0].type === 'video') {
           if (this.netflix) {
             this.netflixMoveToTime(filters[0].to);
@@ -413,7 +426,7 @@ class OpenAngel {
             }
             else {
               this.video.pause();
-              this.video.currentTime = filters[0].to;
+              this.video.currentTime = parseFloat(filters[0].to) + (this.amazon ? this.weirdAmazonBuffer : 0);
               this.video.play();
             }
           }
@@ -421,7 +434,7 @@ class OpenAngel {
       }
       this.closedCaptionCensor();
       console.log('in a filter');
-      this.jQuery('#whattime').text(this.video.currentTime);
+      this.jQuery('#whattime').text(this.getCurrentTime());
     }
     else {
       let activeFilters = this.entries.filter(x => x.active);
@@ -439,7 +452,7 @@ class OpenAngel {
       }
 
       if (this.settings.showConsole) {
-        console.log(this.video.currentTime);
+        console.log(this.getCurrentTime());
       }
     }
   }
@@ -493,6 +506,9 @@ class OpenAngel {
                 }
                 ccEntry.wouldAutoMute = ccEntry.caption.match(this.badWordsRegEx) !== null;
               });
+
+
+
               this.closedCaptionList = data;
             });
           }
