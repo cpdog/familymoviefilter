@@ -92,7 +92,7 @@ class OpenAngel {
 
     jQuery.get('https://raw.githubusercontent.com/LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words/master/en').done(data => {
       let badWordsFromWeb = new Set(data.split('\n'));
-      let maybeOkWords = new Set(['swastika','voyeur','undressing','tushy','tied up','taste my','tainted love','swinger','snowballing','snatch','smut','nude','nudity','escort','dick']);
+      let maybeOkWords = new Set(['swastika','voyeur','undressing','tushy','tied up','taste my','tainted love','swinger','snowballing','snatch','smut','nude','nudity','escort','dick','poof']);
       maybeOkWords.forEach(key => badWordsFromWeb.delete(key));
 
       this.badwordlist = this.badwordlist.concat([...badWordsFromWeb].map(x => '\\b' + RegExp.escape(x) + 's?\\b')).filter(x => x !== '\\bs?\\b' && x !== null);
@@ -154,11 +154,16 @@ class OpenAngel {
       const framesPerSecond = 60;
       $('.player-controls-wrapper').removeClass('opacity-transparent display-none');
       $('.playback.container.hidden.klayer-ns.surface').removeClass('hidden'); //kids
-      let containerSelector = '#netflix-player .player-controls-wrapper, .row.centered.expanded.buttons-container.klayer-ns.surface';
+      $('.PlayerControls--low-power').removeClass('PlayerControls--low-power');
+      let wasHidden = $('.legacy-controls-styles').hasClass('inactive');
+      $('.legacy-controls-styles').removeClass('inactive').addClass('active');
+      let containerSelector = '#netflix-player .player-controls-wrapper, .row.centered.expanded.buttons-container.klayer-ns.surface, .PlayerControls--bottom-controls';
       let oldWidth = $(containerSelector).css('width');
-      $(containerSelector).css('width',(this.video.duration * framesPerSecond) + 'px');
 
-      let scrubber = jQuery('#scrubber-component, .klayer-slider.base.klayer-ns.surface');
+
+      $(containerSelector).css('width',(this.video.duration * framesPerSecond)  + 'px');
+
+      let scrubber = jQuery('#scrubber-component, .klayer-slider.base.klayer-ns.surface, .scrubber-bar');
 
       let factor = time / this.video.duration;
       let mouseX = scrubber.offset().left + Math.round(scrubber.width() * factor);
@@ -186,6 +191,9 @@ class OpenAngel {
 
       $('.player-controls-wrapper').addClass('opacity-transparent display-none');
       $('.playback.container.hidden.klayer-ns.surface').addClass('hidden'); //kids
+      if (wasHidden) {
+        $('.legacy-controls-styles').addClass('inactive').removeClass('active');
+      }
       $(containerSelector).css('width',oldWidth);
       this.controlsWindow.focus();
   }
@@ -469,8 +477,13 @@ class OpenAngel {
   togglePlayPause() {
     if (this.video) {
       if (this.netflix){
-        KeyboardHelper.keyPresss(32, false, false, false);
-        $('.player-controls-wrapper').addClass('opacity-transparent display-none');
+        if ($('.button-nfplayerPlay, .button-nfplayerPause').length > 0){
+          $('.button-nfplayerPlay, .button-nfplayerPause').click();
+        }
+        else {
+          KeyboardHelper.keyPresss(32, false, false, false);
+          $('.player-controls-wrapper').addClass('opacity-transparent display-none');
+        }
       }
       else {
         if (this.video.paused) {
@@ -501,13 +514,9 @@ class OpenAngel {
             this.closedCaptionUrl = evt.data.url;
             ClosedCaptionDownloader.getClosedCaptionDataFromUrl(this.closedCaptionUrl).then(data => {
               data.forEach(ccEntry =>{
-                if ((ccEntry.caption.startsWith('(') || ccEntry.caption.startsWith('[')) || (ccEntry.caption.endsWith(')') || ccEntry.caption.startsWith(']')) ) {
-                  return; //ignore closed captions that look like: [GUNSHOT] or (GUNSHOT).
-                }
-                ccEntry.wouldAutoMute = ccEntry.caption.match(this.badWordsRegEx) !== null;
+                let normalizedCaption = ccEntry.caption.replace(/(\(|\[).+?(\]|\))/g,''); //strip out any words that are in brackets like [GUNSHOT] or (GUNSHOT).
+                ccEntry.wouldAutoMute = normalizedCaption.match(this.badWordsRegEx) !== null;
               });
-
-
 
               this.closedCaptionList = data;
             });
