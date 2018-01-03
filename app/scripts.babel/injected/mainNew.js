@@ -24,42 +24,85 @@ class ClosedCaptionDownloader {
 
   static getClosedCaptionDataFromUrl(url) {
     return new Promise((resolve, reject) => {
-      const re = /(\d+):(\d+):(\d+)\.(\d+)/;
+
       let $ = window.jQuery;
       $.get(url).then(data => {
         let doc = $.parseXML(data);
-        let id = 1;
-        let mapped = $.map(doc.querySelectorAll('p'), function (x) {
-          let el = $(x);
-          el.html(el.html().replace('/>', '/> '));
-          let begin = el.attr('begin');
-          let end = el.attr('end');
-
-          if (begin.indexOf(':') === -1) {
-            begin = parseInt(el.attr('begin'), 10) / 10000000;
-            end = parseInt(el.attr('end'), 10) / 10000000;
-          }
-          else {
-            let result = re.exec(begin);
-            begin = (result[1] * 3600) + (result[2] * 60) + parseInt(result[3], 10) + (result[4] / 1000);
-
-            result = re.exec(end);
-            end = (result[1] * 3600) + (result[2] * 60) + parseInt(result[3], 10) + (result[4] / 1000);
-          }
-
-          return {
-            caption: el.text(),
-            start: begin,
-            end: end,
-            id: id++,
-            active: false
-          };
-        });
-        resolve(mapped);
+        if (url.toLowerCase().indexOf('hulu.com') > -1){
+          resolve(ClosedCaptionDownloader.doHuluMapping(doc));
+        }
+        else{
+          resolve(ClosedCaptionDownloader.doDefaultClosedCaptionMapping(doc));
+        }
       }, function () {
         reject();
       });
     });
+  }
+
+  static doHuluMapping(doc) {
+
+    const key = aesjs.utils.hex.toBytes('4878B22E76379B55C962B18DDBC188D82299F8F52E3E698D0FAF29A40ED64B21');
+    const iv = aesjs.utils.hex.toBytes('574137686170374147556b6576757468');
+    let allNodes = doc.querySelectorAll('SYNC');
+    let map = [];
+    for (var i=1; i< allNodes.length; i+=2){
+
+      let startNode =  $(allNodes[i]);
+      let endNode =  $(allNodes[i+1]);
+      let begin = startNode.attr('start');
+      let end = endNode.attr('start');
+
+      begin = parseInt(begin, 10)/1000;
+      end = parseInt(end, 10)/1000;
+
+
+      let text = startNode.text();
+      var enc = aesjs.utils.hex.toBytes(text);
+      var aesCbc = new aesjs.ModeOfOperation.cbc(key, iv);
+      var decryptedBytes = aesCbc.decrypt(enc);
+      var decryptedText = aesjs.utils.utf8.fromBytes(decryptedBytes.slice(0,decryptedBytes.length - decryptedBytes[decryptedBytes.length-1]));
+      map.push({
+        caption: $(decryptedText.replace('/>', '/> ')).text(),
+        start: begin,
+        end: end,
+        id: i-1,
+        active: false
+      });
+    }
+     return map;
+  }
+
+  static doDefaultClosedCaptionMapping(doc) {
+    const re = /(\d+):(\d+):(\d+)\.(\d+)/;
+    let id = 1;
+    let mapped = $.map(doc.querySelectorAll('p'), function (x) {
+      let el = $(x);
+      el.html(el.html().replace('/>', '/> '));
+      let begin = el.attr('begin');
+      let end = el.attr('end');
+
+      if (begin.indexOf(':') === -1) {
+        begin = parseInt(el.attr('begin'), 10) / 10000000;
+        end = parseInt(el.attr('end'), 10) / 10000000;
+      }
+      else {
+        let result = re.exec(begin);
+        begin = (result[1] * 3600) + (result[2] * 60) + parseInt(result[3], 10) + (result[4] / 1000);
+
+        result = re.exec(end);
+        end = (result[1] * 3600) + (result[2] * 60) + parseInt(result[3], 10) + (result[4] / 1000);
+      }
+
+      return {
+        caption: el.text(),
+        start: begin,
+        end: end,
+        id: id++,
+        active: false
+      };
+    });
+    return mapped;
   }
 }
 
@@ -72,6 +115,7 @@ class OpenAngel {
     this.currentStatus = {};
     this.serviceId = null;
     this.netflix = false;
+    this.hulu = false;
     this.amazon = false;
     this.service = null;
     this.controlsWindow = null;
@@ -89,7 +133,6 @@ class OpenAngel {
     RegExp.escape = function (value) {
       return value.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
     };
-
     jQuery.get('https://raw.githubusercontent.com/LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words/master/en').done(data => {
       let badWordsFromWeb = new Set(data.split('\n'));
       let maybeOkWords = new Set(['swastika','voyeur','undressing','tushy','tied up','taste my','tainted love','swinger','snowballing','snatch','smut','nude','nudity','escort','dick','poof']);
@@ -203,7 +246,7 @@ class OpenAngel {
       this.netflixMoveToTime(time);
     }
     else {
-      if (location.href.toLowerCase().indexOf('youtube') > -1) {
+      if (location.href.toLowerCase().indexOf('youtube') > -1 || this.hulu) {
         this.video.currentTime = time;
       }
       else {
@@ -221,7 +264,7 @@ class OpenAngel {
     let autoMuteList = this.closedCaptionList.filter(entry => entry.wouldAutoMute && entry.start <= this.getCurrentTime() && entry.end >= this.getCurrentTime());
 
     if (autoMuteList.length > 0) {
-      this.jQuery('.timedTextWindow, .player-timedtext-text-container').contents().each((index, x) => {
+      this.jQuery('.timedTextWindow, .player-timedtext-text-container, .caption-segment').contents().each((index, x) => {
         let contents = x.innerText;
         let censorMe = contents.match(this.badWordsRegEx) !== null;
         if (censorMe) {
@@ -247,13 +290,16 @@ class OpenAngel {
   }
 
   setupControls() {
-    if (!this.netflix && location.href.toLowerCase().indexOf('amazon') === -1) {
+    if (!this.netflix && !this.hulu && location.href.toLowerCase().indexOf('amazon') === -1) {
       return;
     }
 
     if (this.jQuery('#openangelcontrols').length === 0) {
-      if (this.netflix || location.href.toLowerCase().indexOf('amazon') > -1) {
+      if (this.netflix || location.href.toLowerCase().indexOf('amazon') > -1 || this.hulu) {
         this.jQuery('body').append(`<iframe id='openangelcontrols' src="chrome-extension://${this.extensionId}/html/controls/controls.html"></iframe>`);
+        if (this.hulu){
+          this.jQuery('#inner-wrap').css({'top': '50px'});
+        }
       }
       else if (location.href.toLowerCase().indexOf('youtube') > -1) {
         //this.jQuery('#watch-header').append(`<iframe id='openangelcontrols' style="width: 100%; margin: 0; padding: 0; border:0; height:80px;" src="chrome-extension://${openAngel.extensionId}/html/controls/controls.html"></iframe>`);
@@ -296,6 +342,11 @@ class OpenAngel {
       this.amazon = true;
       this.serviceId = amazonId;
       this.service = 'amazonid';
+    }
+    else if (location.href.toLowerCase().includes('hulu.com/watch')) {
+      this.serviceId = location.href.match(/hulu.com\/watch\/(\d+)/)[1];
+      this.service = 'huluid';
+      this.hulu = true;
     }
 
 
@@ -372,7 +423,7 @@ class OpenAngel {
       return;
     }
 
-    this.video = this.video || this.jQuery('video:last').get(0);
+    this.video = this.video || this.hulu ? this.jQuery('#content-video-player').get(0) : this.jQuery('video:last').get(0);
 
     if (!this.video) {
       return;

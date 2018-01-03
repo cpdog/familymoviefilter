@@ -15,6 +15,7 @@
     "angular": false,
     "chrome": false,
     "jQuery": false,
+    "aesjs": false,
     "$": false
   }
 }

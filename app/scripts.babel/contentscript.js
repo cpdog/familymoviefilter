@@ -14,7 +14,7 @@ chrome.runtime.onMessage.addListener(function (request) {
   }
 });
 
-let scriptsToInject = ['bower_components/jquery/dist/jquery.js', 'scripts/injected/mainNew.js'];
+let scriptsToInject = ['bower_components/jquery/dist/jquery.js','bower_components/aes-js/index.js', 'scripts/injected/mainNew.js'];
 var nextScriptIndex = 0;
 function loadScript() {
   let s = document.createElement('script');

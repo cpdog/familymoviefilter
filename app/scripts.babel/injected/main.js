@@ -73,7 +73,7 @@
 
       function autoMute() {
         let shouldMute = false;
-        $('.timedTextWindow, .player-timedtext-text-container').contents().each((index, x) => {
+        $('.timedTextWindow, .player-timedtext-text-container, .caption-segment').contents().each((index, x) => {
           let contents = x.innerText;
           let censorMe = contents.match(badWordsRegEx) !== null;
           if (censorMe) {
