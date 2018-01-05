@@ -1,0 +1,86 @@
+<!doctype html>
+<html ng-app="openAngelTitles">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- build:css styles/popup-vendor.css -->
+  <!-- bower:css -->
+  <link rel="stylesheet" href="bower_components/components-font-awesome/css/font-awesome.css"/>
+  <link rel="stylesheet" href="bower_components/datatables.net-bs/css/dataTables.bootstrap.css"/>
+  <link rel="stylesheet" href="bower_components/angular-hotkeys/build/hotkeys.css"/>
+  <!-- endbower -->
+  <!-- endbuild -->
+  <!-- build:css styles/titles.css -->
+  <link href="styles/titles.css" rel="stylesheet">
+  <!-- endbuild -->
+
+</head>
+<body ng-controller="titlesCtrl as vm">
+<div ng-if="!vm.movies" style="width:500px; height:500px;">
+  <h3>
+    Loading title list...
+  </h3>
+</div>
+
+<div class="container-fluid" ng-if="vm.movies" ng-cloak>
+  <div class='text-center'>
+    <h3>
+      Sort by
+      <a ng-click='vm.sort="-createdate"' href='javascript:'>Date Added</a>
+      |
+      <a ng-click='vm.sort="title"' href='javascript:'>Title</a>
+    </h3>
+
+    <div class="form-inline">
+      <div class="form-group">
+        <input class="form-control" ng-model="vm.titleFilter" placeholder="Search titles...">
+      </div>
+    </div>
+  </div>
+
+  <div ng-repeat="title in vm.movies | orderBy: vm.sort | filter: vm.titleFilter"
+       style="float:left; margin:10px; width:320px;"
+       class="movieposter" ng-click="vm.showMovieInfo(title)">
+    <div style="height:450px">
+      <div style="background-color:#ababab; height:450px" ng-if="!title.posterurl" class="align-center">
+        Image not available
+      </div>
+      <img ng-src="{{title.posterurl}}" width=300 height=442/>
+    </div>
+    <div style="height:70px" class="align-center">
+      <h3 class="text-center">{{title.title}}</h3>
+      <div class='text-center'>
+        Watch on
+        <a target='_blank' ng-href='https://www.netflix.com/watch/{{title.netflixid}}'
+           ng-if='title.netflixid'>Netflix</a>
+
+        <span ng-if='title.netflixid && title.amazonid'>|</span>
+        <a target='_blank' ng-href='https://www.amazon.com/dp/{{title.amazonid}}' ng-if='title.amazonid'>Amazon</a>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- build:js scripts/popup-vendor.js -->
+<!-- bower:js -->
+<script src="bower_components/jquery/dist/jquery.js"></script>
+<script src="bower_components/angular/angular.js"></script>
+<script src="bower_components/angular-animate/angular-animate.js"></script>
+<script src="bower_components/angular-route/angular-route.js"></script>
+<script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
+<script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+<script src="bower_components/lodash/lodash.js"></script>
+<script src="bower_components/bootstrap-sass/assets/javascripts/bootstrap.js"></script>
+<script src="bower_components/datatables.net/js/jquery.dataTables.js"></script>
+<script src="bower_components/datatables.net-bs/js/dataTables.bootstrap.js"></script>
+<script src="bower_components/angular-hotkeys/build/hotkeys.js"></script>
+<!-- endbower -->
+<!-- endbuild -->
+
+<!-- build:js scripts/titlesCtrl.js -->
+<script src="scripts/titlesCtrl.js"></script>
+<!-- endbuild -->
+</body>
+</html>

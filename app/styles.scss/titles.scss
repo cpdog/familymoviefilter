@@ -1,0 +1,11 @@
+$icon-font-path: "../bower_components/bootstrap-sass/assets/fonts/bootstrap/";
+
+@import "themes/superhero/variables";
+// bower:scss
+@import "../bower_components/bootstrap-sass/assets/stylesheets/_bootstrap.scss";
+// endbower
+@import "themes/superhero/bootswatch";
+
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none !important;
+}

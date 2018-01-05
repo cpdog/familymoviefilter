@@ -235,6 +235,12 @@ class OpenAngel {
       $('.player-controls-wrapper').addClass('opacity-transparent display-none');
       $('.playback.container.hidden.klayer-ns.surface').addClass('hidden'); //kids
       if (wasHidden) {
+        //alert('now hide!')
+        $('.controls').hide();
+        window.setTimeout(function () {
+          $('.controls').addClass('inactive').removeClass('active').show();
+        },1000);
+        //.addClass('inactive').removeClass('active');
         $('.legacy-controls-styles').addClass('inactive').removeClass('active');
       }
       $(containerSelector).css('width',oldWidth);
@@ -261,8 +267,26 @@ class OpenAngel {
   }
 
   closedCaptionCensor() {
-    let autoMuteList = this.closedCaptionList.filter(entry => entry.wouldAutoMute && entry.start <= this.getCurrentTime() && entry.end >= this.getCurrentTime());
 
+    //The other thing we want to do here is that if there is a filter that happens during the current closed caption, then we want to censor that closed caption. This takes care of comments that aren't filtered by being in the bad word list
+    //but are filtered out through a user created filter.
+    let currentClosedCaptionList = this.closedCaptionList.filter(entry => entry.start <= this.getCurrentTime() && entry.end >= this.getCurrentTime());
+    if (this.entries.length > 0 && currentClosedCaptionList.length > 0) {
+
+      let minCCEntryTime = currentClosedCaptionList.sort((x,y) => x.start - y.start)[0].start;
+      let maxCCEntryTime = currentClosedCaptionList.sort((x,y) => y.start - y.start)[0].end;
+
+      let filtersActiveDuringClosedCaption = this.entries.filter(x => x.enabled && ((x.from >= minCCEntryTime && x.from <= maxCCEntryTime) || (x.to >= minCCEntryTime && x.to <= maxCCEntryTime) || (x.from <= minCCEntryTime && x.to >= maxCCEntryTime)));
+      if (filtersActiveDuringClosedCaption.length > 0) {
+        //if there's an active filter (which would be for dialog), then we want to hide the closed captions altogether
+        this.jQuery('.timedTextWindow, .player-timedtext-text-container, .caption-segment').contents().each((index, x) => {
+          this.jQuery(x).html('(CENSORED)');
+        });
+      }
+    }
+
+    //now do the automuting
+    let autoMuteList = this.closedCaptionList.filter(entry => entry.wouldAutoMute && entry.start <= this.getCurrentTime() && entry.end >= this.getCurrentTime());
     if (autoMuteList.length > 0) {
       this.jQuery('.timedTextWindow, .player-timedtext-text-container, .caption-segment').contents().each((index, x) => {
         let contents = x.innerText;
@@ -276,6 +300,7 @@ class OpenAngel {
       if (this.entries.length > 0) {
         let minCCEntryTime = autoMuteList.sort((x,y) => x.start - y.start)[0].start;
         let maxCCEntryTime = autoMuteList.sort((x,y) => y.start - y.start)[0].end;
+
         let filters = this.entries.filter(x => x.enabled && ((x.to >= minCCEntryTime && x.to <= maxCCEntryTime) || (x.from >= minCCEntryTime && x.from <= maxCCEntryTime) || (x.from <= minCCEntryTime && x.to >= maxCCEntryTime)));
         if (filters.length > 0) { //there's an active filter in play so don't auto mute
           return false;
@@ -423,13 +448,13 @@ class OpenAngel {
       return;
     }
 
-    this.video = this.video || this.hulu ? this.jQuery('#content-video-player').get(0) : this.jQuery('video:last').get(0);
+    this.video = this.video || (this.hulu ? this.jQuery('#content-video-player').get(0) : this.jQuery('video:last').get(0));
 
     if (!this.video) {
       return;
     }
     else if (this.getCurrentTime() === 0) {
-      this.video = this.jQuery('video:last').get(0);
+      this.video = (this.hulu ? this.jQuery('#content-video-player').get(0) : this.jQuery('video:last').get(0));
     }
 
     this.currentStatus = {
