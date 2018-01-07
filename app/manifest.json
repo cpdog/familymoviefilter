@@ -1,6 +1,6 @@
 {
   "name": "__MSG_appName__",
-  "version": "0.0.35",
+  "version": "0.0.37",
   "manifest_version": 2,
   "description": "__MSG_appDescription__",
   "icons": {
@@ -45,6 +45,7 @@
       "matches": [ "*://*.netflix.com/*", "*://*.amazon.com/*","*://*.hulu.com/*","*://*.youtube.com/*"],
       "js": [
         "bower_components/jquery/dist/jquery.js",
+        "bower_components/aes-js/index.js",
         "scripts/contentscript.js"
       ],
       "css": ["styles/injected.css"],

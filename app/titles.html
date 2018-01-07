@@ -15,7 +15,7 @@
   <!-- endbuild -->
 
 </head>
-<body ng-controller="titlesCtrl as vm">
+<body ng-controller="titlesCtrl as vm" style="width:400px">
 <div ng-if="!vm.movies" style="width:500px; height:500px;">
   <h3>
     Loading title list...
@@ -37,29 +37,26 @@
       </div>
     </div>
   </div>
+  <div class="row">
+    <div ng-repeat="title in vm.movies | orderBy: vm.sort | filter: vm.titleFilter">
+      <div ng-if="title.netflixid || title.amazonid" class="col-xs-6">
+        <div class="text-center">
+          <div style="background-color:#ababab; height:200px" ng-if="!title.posterurl" class="align-center">
+            <h5 class="text-center">{{title.title}}</h5>
+          </div>
+          <img ng-src="{{title.posterurl}}" height="150"/>
+        </div>
+        <div class="align-center text-center">
+          <a target='_blank' ng-href='https://www.netflix.com/watch/{{title.netflixid}}'
+             ng-if='title.netflixid'>Netflix</a>
+          <span ng-if='title.netflixid && title.amazonid'>|</span>
+          <a target='_blank' ng-href='https://www.amazon.com/dp/{{title.amazonid}}' ng-if='title.amazonid'>Amazon</a>
 
-  <div ng-repeat="title in vm.movies | orderBy: vm.sort | filter: vm.titleFilter"
-       style="float:left; margin:10px; width:320px;"
-       class="movieposter" ng-click="vm.showMovieInfo(title)">
-    <div style="height:450px">
-      <div style="background-color:#ababab; height:450px" ng-if="!title.posterurl" class="align-center">
-        Image not available
-      </div>
-      <img ng-src="{{title.posterurl}}" width=300 height=442/>
-    </div>
-    <div style="height:70px" class="align-center">
-      <h3 class="text-center">{{title.title}}</h3>
-      <div class='text-center'>
-        Watch on
-        <a target='_blank' ng-href='https://www.netflix.com/watch/{{title.netflixid}}'
-           ng-if='title.netflixid'>Netflix</a>
-
-        <span ng-if='title.netflixid && title.amazonid'>|</span>
-        <a target='_blank' ng-href='https://www.amazon.com/dp/{{title.amazonid}}' ng-if='title.amazonid'>Amazon</a>
-
+        </div>
       </div>
     </div>
   </div>
+
 </div>
 
 
@@ -76,6 +73,7 @@
 <script src="bower_components/datatables.net/js/jquery.dataTables.js"></script>
 <script src="bower_components/datatables.net-bs/js/dataTables.bootstrap.js"></script>
 <script src="bower_components/angular-hotkeys/build/hotkeys.js"></script>
+<script src="bower_components/aes-js/index.js"></script>
 <!-- endbower -->
 <!-- endbuild -->
 
