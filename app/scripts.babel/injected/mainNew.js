@@ -115,6 +115,7 @@ class OpenAngel {
     this.currentStatus = {};
     this.serviceId = null;
     this.netflix = false;
+    this.youtube = false;
     this.hulu = false;
     this.amazon = false;
     this.service = null;
@@ -315,10 +316,9 @@ class OpenAngel {
   }
 
   setupControls() {
-    if (!this.netflix && !this.hulu && location.href.toLowerCase().indexOf('amazon') === -1) {
+    if (!this.youtube && !this.netflix && !this.hulu && location.href.toLowerCase().indexOf('amazon') === -1) {
       return;
     }
-
     if (this.jQuery('#openangelcontrols').length === 0) {
       if (this.netflix || location.href.toLowerCase().indexOf('amazon') > -1 || this.hulu) {
         this.jQuery('body').append(`<iframe id='openangelcontrols' src="chrome-extension://${this.extensionId}/html/controls/controls.html"></iframe>`);
@@ -326,7 +326,8 @@ class OpenAngel {
           this.jQuery('#inner-wrap').css({'top': '50px'});
         }
       }
-      else if (location.href.toLowerCase().indexOf('youtube') > -1) {
+      else if (this.youtube) {
+        //this.jQuery('body').append(`<iframe id='openangelcontrols' src="chrome-extension://${this.extensionId}/html/controls/controls.html"></iframe>`);
         //this.jQuery('#watch-header').append(`<iframe id='openangelcontrols' style="width: 100%; margin: 0; padding: 0; border:0; height:80px;" src="chrome-extension://${openAngel.extensionId}/html/controls/controls.html"></iframe>`);
       }
       this.controlsWindow = this.jQuery('#openangelcontrols').get(0).contentWindow;
@@ -372,6 +373,11 @@ class OpenAngel {
       this.serviceId = location.href.match(/hulu.com\/watch\/(\d+)/)[1];
       this.service = 'huluid';
       this.hulu = true;
+    }
+    else if (location.href.toLowerCase().includes('youtube.com/watch')) {
+      //this.serviceId = location.href.match(/hulu.com\/watch\/(\d+)/)[1];
+      this.service = 'youtube';
+      this.youtube = true;
     }
 
 

@@ -1,6 +1,6 @@
 {
   "name": "__MSG_appName__",
-  "version": "0.0.37",
+  "version": "0.0.38",
   "manifest_version": 2,
   "description": "__MSG_appDescription__",
   "icons": {
@@ -24,6 +24,7 @@
     "*://*.nflxvideo.net/?o=*",
     "*://*.assetshuluimcom-a.akamaihd.net/captions/*",
     "*://*.cloudfront.net/*.dfxp",
+    "*://*.cloudfront.net/*.ttml2",
     "*://*.youtube.com/*",
     "*://*.hulu.com/*",
     "storage",
