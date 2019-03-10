@@ -199,19 +199,36 @@ class OpenAngel {
       $('.player-controls-wrapper').removeClass('opacity-transparent display-none');
       $('.playback.container.hidden.klayer-ns.surface').removeClass('hidden'); //kids
       $('.PlayerControls--low-power').removeClass('PlayerControls--low-power');
-      let wasHidden = $('.legacy-controls-styles').hasClass('inactive');
+      let wasHidden = $('.legacy-controls-styles').hasClass('inactive') || $('.PlayerControlsNeo__bottom-controls').hasClass('PlayerControlsNeo__bottom-controls--faded');
       $('.legacy-controls-styles').removeClass('inactive').addClass('active');
-      let containerSelector = '#netflix-player .player-controls-wrapper, .row.centered.expanded.buttons-container.klayer-ns.surface, .PlayerControls--bottom-controls';
+
+      let containerSelector = '#netflix-player .player-controls-wrapper, .row.centered.expanded.buttons-container.klayer-ns.surface, .PlayerControls--bottom-controls, .PlayerControlsNeo__bottom-controls, .PlayerControlsNeo__bottom-controls--faded';
       let oldWidth = $(containerSelector).css('width');
-
-
       $(containerSelector).css('width',(this.video.duration * framesPerSecond)  + 'px');
 
       let scrubber = jQuery('#scrubber-component, .klayer-slider.base.klayer-ns.surface, .scrubber-bar');
 
+      window.clearTimeout(window.netflixTimeout);
+      $('.controls, .PlayerControlsNeo__layout').show(); //in case we hid it down below!
+
+      scrubber[0].dispatchEvent(new MouseEvent('mouseover', {
+        'bubbles': true,
+        'button': 0,
+        'screenX': jQuery(window).scrollLeft(),
+        'screenY': jQuery(window).scrollTop(),
+        'clientX': jQuery(window).scrollLeft(),
+        'clientY': jQuery(window).scrollTop(),
+        'offsetX': 0,
+        'offsetY': 0,
+        'pageX': 0,
+        'pageY': 0,
+        'currentTarget': scrubber[0]
+      }));
+
       let factor = time / this.video.duration;
       let mouseX = scrubber.offset().left + Math.round(scrubber.width() * factor);
       let mouseY = scrubber.offset().top + scrubber.height() / 2;
+
 
       let eventOptions = {
         'bubbles': true,
@@ -235,12 +252,14 @@ class OpenAngel {
 
       $('.player-controls-wrapper').addClass('opacity-transparent display-none');
       $('.playback.container.hidden.klayer-ns.surface').addClass('hidden'); //kids
-      if (wasHidden) {
+      if (wasHidden || true) {
         //alert('now hide!')
-        $('.controls').hide();
-        window.setTimeout(function () {
+
+        $('.controls, .PlayerControlsNeo__layout').hide();
+        window.netflixTimeout = window.setTimeout(function () {
           $('.controls').addClass('inactive').removeClass('active').show();
-        },1000);
+          $('.PlayerControlsNeo__layout').show();
+        },5000); //this should work without the 5 second delay but it still shows the scrubber? css transition delay?
         //.addClass('inactive').removeClass('active');
         $('.legacy-controls-styles').addClass('inactive').removeClass('active');
       }
