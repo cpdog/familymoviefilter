@@ -40,13 +40,28 @@ class ClosedCaptionDownloader {
     });
   }
 
+  static doVTTMapping(video) {
+    let map = [];
+    let cues = video.textTracks[0].cues;
+    for (let i=0; i < cues.length; i++){
+      map.push({
+        caption: cues[i].originalText || cues[i].text,
+        start: cues[i].startTime,
+        end: cues[i].endTime,
+        id: i-1,
+        active: false
+      });
+    }
+    return map;
+  }
+
   static doHuluMapping(doc) {
 
     const key = aesjs.utils.hex.toBytes('4878B22E76379B55C962B18DDBC188D82299F8F52E3E698D0FAF29A40ED64B21');
     const iv = aesjs.utils.hex.toBytes('574137686170374147556b6576757468');
     let allNodes = doc.querySelectorAll('SYNC');
     let map = [];
-    for (var i=1; i< allNodes.length; i+=2){
+    for (let i=1; i< allNodes.length; i+=2){
 
       let startNode =  $(allNodes[i]);
       let endNode =  $(allNodes[i+1]);
@@ -118,6 +133,7 @@ class OpenAngel {
     this.youtube = false;
     this.hulu = false;
     this.amazon = false;
+    this.disneyplus = false;
     this.service = null;
     this.controlsWindow = null;
     this.video = null;
@@ -335,11 +351,11 @@ class OpenAngel {
   }
 
   setupControls() {
-    if (!this.youtube && !this.netflix && !this.hulu && location.href.toLowerCase().indexOf('amazon') === -1) {
+    if (!this.youtube && !this.netflix && !this.hulu && !this.disneyplus && location.href.toLowerCase().indexOf('amazon') === -1) {
       return;
     }
     if (this.jQuery('#openangelcontrols').length === 0) {
-      if (this.netflix || location.href.toLowerCase().indexOf('amazon') > -1 || this.hulu) {
+      if (this.netflix || location.href.toLowerCase().indexOf('amazon') > -1 || this.hulu || this.disneyplus) {
         this.jQuery('body').append(`<iframe id='openangelcontrols' src="chrome-extension://${this.extensionId}/html/controls/controls.html"></iframe>`);
         if (this.hulu){
           this.jQuery('#inner-wrap').css({'top': '50px'});
@@ -352,11 +368,12 @@ class OpenAngel {
       this.controlsWindow = this.jQuery('#openangelcontrols').get(0).contentWindow;
     }
     else {
-      if (this.netflix || location.href.toLowerCase().indexOf('amazon') > -1) {
+      if (this.netflix || this.disneyplus || location.href.toLowerCase().indexOf('amazon') > -1) {
         this.jQuery(this.video).css({height: 'calc(100% - 55px)', top: '55px'});
         this.jQuery('#netflix-player .player-back-to-browsing').css({'top': '1em'});
         this.jQuery('.webPlayer>.overlaysContainer', '').css({'top': '20px'});
         this.jQuery('.playback-longpause-container').css('display','none');
+        this.jQuery('#hudson-wrapper').css({'top':'40px'});
       }
       else if (location.href.toLowerCase().indexOf('youtube') > -1) {
 
@@ -392,6 +409,11 @@ class OpenAngel {
       this.serviceId = location.href.match(/hulu.com\/watch\/(\d+)/)[1];
       this.service = 'huluid';
       this.hulu = true;
+    }
+    else if (location.href.toLowerCase().includes('disneyplus.com/video/')) {
+      this.serviceId = location.href.match(/disneyplus.com\/video\/([a-z0-9-]+)/)[1];
+      this.service = 'disneyplusid';
+      this.disneyplus = true;
     }
     else if (location.href.toLowerCase().includes('youtube.com/watch')) {
       //this.serviceId = location.href.match(/hulu.com\/watch\/(\d+)/)[1];
@@ -481,6 +503,8 @@ class OpenAngel {
     else if (this.getCurrentTime() === 0) {
       this.video = (this.hulu ? this.jQuery('#content-video-player').get(0) : this.jQuery('video:last').get(0));
     }
+
+    this.webVTTCheck();
 
     this.currentStatus = {
       currentTime: this.getCurrentTime(),
@@ -614,12 +638,7 @@ class OpenAngel {
           if (this.closedCaptionUrl !== evt.data.url){
             this.closedCaptionUrl = evt.data.url;
             ClosedCaptionDownloader.getClosedCaptionDataFromUrl(this.closedCaptionUrl).then(data => {
-              data.forEach(ccEntry =>{
-                let normalizedCaption = ccEntry.caption.replace(/(\(|\[).+?(\]|\))/g,''); //strip out any words that are in brackets like [GUNSHOT] or (GUNSHOT).
-                ccEntry.wouldAutoMute = normalizedCaption.match(this.badWordsRegEx) !== null;
-              });
-
-              this.closedCaptionList = data;
+              this.normalizeClosedCaptions(data);
             });
           }
           break;
@@ -677,6 +696,27 @@ class OpenAngel {
       }
     });
     jQuery(() => this.resetFilters(false));
+  }
+
+  normalizeClosedCaptions(data) {
+    data.forEach(ccEntry => {
+      let normalizedCaption = ccEntry.caption.replace(/(\(|\[).+?(\]|\))/g, ''); //strip out any words that are in brackets like [GUNSHOT] or (GUNSHOT).
+      ccEntry.wouldAutoMute = normalizedCaption.match(this.badWordsRegEx) !== null;
+    });
+
+    this.closedCaptionList = data;
+  }
+
+  webVTTCheck() {
+    if (this.disneyplus && this.video.textTracks.length > 0 && this.closedCaptionList.length !== this.video.textTracks[0].cues.length) {
+      this.normalizeClosedCaptions(ClosedCaptionDownloader.doVTTMapping(this.video));
+      this.closedCaptionUrl = 'disneyplusVTT';
+      for (let i=0; i< this.video.textTracks[0].cues.length; i++){
+        let cue = this.video.textTracks[0].cues[i];
+        cue.originalText = cue.originalText || cue.text;
+        cue.text = cue.text.replace(this.badWordsRegEx, '(CENSORED)');
+      }
+    }
   }
 }
 

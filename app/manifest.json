@@ -1,6 +1,6 @@
 {
   "name": "__MSG_appName__",
-  "version": "0.0.42",
+  "version": "1.0.1",
   "manifest_version": 2,
   "description": "__MSG_appDescription__",
   "icons": {
@@ -21,6 +21,7 @@
     "tabs",
     "*://*.netflix.com/watch/*",
     "*://*.amazon.com/*",
+    "*://*.disneyplus.com/*",
     "*://*.nflxvideo.net/?o=*",
     "*://*.assetshuluimcom-a.akamaihd.net/captions/*",
     "*://*.cloudfront.net/*.dfxp",
@@ -39,11 +40,12 @@
     "matches": ["*://*.netflix.com/watch/*",
       "*://*.amazon.com/*",
       "*://*.hulu.com/*",
+      "*://*.disneyplus.com/*",
       "*://*.youtube.com/*"]
   },
   "content_scripts": [
     {
-      "matches": [ "*://*.netflix.com/*", "*://*.amazon.com/*","*://*.hulu.com/*","*://*.youtube.com/*"],
+      "matches": [ "*://*.netflix.com/*", "*://*.amazon.com/*","*://*.hulu.com/*","*://*.youtube.com/*","*://*.disneyplus.com/*"],
       "js": [
         "bower_components/jquery/dist/jquery.js",
         "bower_components/aes-js/index.js",

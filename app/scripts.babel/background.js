@@ -22,7 +22,6 @@ chrome.webRequest.onResponseStarted.addListener(function (details){
     chrome.tabs.query({}, function (tabs) {
       tabs.filter(x => x.url.startsWith('https://www.netflix.com')).forEach(tb => {
         chrome.tabs.sendMessage(tb.id, {action: 'closedCaptionUrl', url: details.url});
-        console.log(tb, details)
         //alert(tb)
       });
     });
