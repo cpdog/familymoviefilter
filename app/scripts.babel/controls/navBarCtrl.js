@@ -19,6 +19,10 @@
         document.execCommand('copy');
       };
 
+      vm.hideToolWindow = function(){
+        parent.postMessage({ action: 'hideToolWindow', from: 'openangel'}, '*');
+      };
+
       videoStateService.subscribe($scope, function(){
         vm.currentStatus = videoStateService.currentStatus();
         $scope.$apply();

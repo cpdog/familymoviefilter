@@ -124,7 +124,7 @@ class ClosedCaptionDownloader {
 class OpenAngel {
 
   constructor(jQuery) {
-    this.weirdAmazonBuffer = 10;
+    this.weirdAmazonBuffer = 0;
     this.jQuery = jQuery;
     this.settings = {};
     this.currentStatus = {};
@@ -142,6 +142,7 @@ class OpenAngel {
     this.closedCaptionList = [];
     this.entries = [];
     this.autoMuteEnabled = true;
+    this.hideToolWindow = false;
     this.playSpeed = 1;
     this.badwordlist = ['OH,? GOD','OH,? MY GOD','^\\s*-?GOD!','BADASS','GODDAMN','DAMN', '\\bHELL\\b', 'JESUS', '\\bCHRIST\\b', '\\(CENSORED\\)', '\\b[A-Z]*SH--', '\\b[A-Z]*FU--', '\\b[A-Z]*FUCK[A-Z]*\\b', '\\b[A-Z]*SHIT[A-Z]*\\b', '\\b[A-Z]*PISS[A-Z]*\\b','DICK(?! VAN)'];
     this.badWordsRegEx = new RegExp(this.badwordlist.join('|'), 'gi');
@@ -307,6 +308,7 @@ class OpenAngel {
     //The other thing we want to do here is that if there is a filter that happens during the current closed caption, then we want to censor that closed caption. This takes care of comments that aren't filtered by being in the bad word list
     //but are filtered out through a user created filter.
     let currentClosedCaptionList = this.closedCaptionList.filter(entry => entry.start <= this.getCurrentTime() && entry.end >= this.getCurrentTime());
+    let closedCapationCssQuery = '.timedTextWindow, .player-timedtext-text-container, .caption-segment, .persistentPanel div span';
     if (this.entries.length > 0 && currentClosedCaptionList.length > 0) {
 
       let minCCEntryTime = currentClosedCaptionList.sort((x,y) => x.start - y.start)[0].start;
@@ -315,7 +317,7 @@ class OpenAngel {
       let filtersActiveDuringClosedCaption = this.entries.filter(x => x.enabled && ((x.from >= minCCEntryTime && x.from <= maxCCEntryTime) || (x.to >= minCCEntryTime && x.to <= maxCCEntryTime) || (x.from <= minCCEntryTime && x.to >= maxCCEntryTime)));
       if (filtersActiveDuringClosedCaption.length > 0) {
         //if there's an active filter (which would be for dialog), then we want to hide the closed captions altogether
-        this.jQuery('.timedTextWindow, .player-timedtext-text-container, .caption-segment').contents().each((index, x) => {
+        this.jQuery(closedCapationCssQuery).contents().each((index, x) => {
           this.jQuery(x).html('(CENSORED)');
         });
       }
@@ -324,7 +326,7 @@ class OpenAngel {
     //now do the automuting
     let autoMuteList = this.closedCaptionList.filter(entry => entry.wouldAutoMute && entry.start <= this.getCurrentTime() && entry.end >= this.getCurrentTime());
     if (autoMuteList.length > 0) {
-      this.jQuery('.timedTextWindow, .player-timedtext-text-container, .caption-segment').contents().each((index, x) => {
+      this.jQuery(closedCapationCssQuery).contents().each((index, x) => {
         let contents = x.innerText;
         let censorMe = contents.match(this.badWordsRegEx) !== null;
         if (censorMe) {
@@ -379,6 +381,13 @@ class OpenAngel {
 
       }
     }
+
+    if (this.hideToolWindow){
+      this.jQuery('#openangelcontrols').hide();
+    }
+    else{
+      this.jQuery('#openangelcontrols').show();
+    }
   }
 
   resetFilters(manual) {
@@ -412,7 +421,7 @@ class OpenAngel {
     }
     else if (location.href.toLowerCase().includes('disneyplus.com/video/')) {
       this.serviceId = location.href.match(/disneyplus.com\/video\/([a-z0-9-]+)/)[1];
-      this.service = 'disneyplusid';
+      this.service = 'disneyId';
       this.disneyplus = true;
     }
     else if (location.href.toLowerCase().includes('youtube.com/watch')) {
@@ -599,6 +608,7 @@ class OpenAngel {
     this.video.style.setProperty('filter', `blur(${blurAmount}px)`, 'important');
   }
 
+
   togglePlayPause() {
     if (this.video) {
       if (this.netflix){
@@ -656,6 +666,9 @@ class OpenAngel {
           break;
         case 'blurVideo':
           this.blurVideo(evt.data.blur);
+          break;
+        case 'hideToolWindow':
+          this.hideToolWindow = true;
           break;
         case 'playSpeed':
           this.setPlaySpeed(evt.data.playSpeed);

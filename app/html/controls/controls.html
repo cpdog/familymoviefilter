@@ -70,6 +70,10 @@
       </div>
 
 
+      <div class="btn-group navbar-btn pull-right">
+        <button class="btn btn-warning" uib-tooltip="Hide" ng-click="vm.hideToolWindow()"><i class="fa fa-close"></i></button>
+      </div>
+
       <div class="well well-sm pull-right status-well" id="timeStatus">
         <input type="text" style="position: absolute; top:-100px" id="clipTime" value="{{vm.currentStatus.currentTime.toFixed(6) }}"/>
         <a id="copyTimeLink" ng-click="vm.copyCurrentTime()" uib-tooltip="Copy time to clipboard" tooltip-placement="right" class="text-primary">{{vm.currentStatus.currentTime.toFixed(6) }}</a>
@@ -89,6 +93,8 @@
         <i class="fa fa-exclamation-circle text-danger"></i>
         <a class="anchorLink text-warning" uib-tooltip="Subtitles must be loaded for AutoMute to function. After they are loaded, they may be turned off." tooltip-placement="left">Subtitles Unloaded</a>
       </div>
+
+
     </div>
   </div>
 </nav>
