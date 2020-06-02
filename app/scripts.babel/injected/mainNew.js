@@ -353,7 +353,7 @@ class OpenAngel {
   }
 
   setupControls() {
-    if (!this.youtube && !this.netflix && !this.hulu && !this.disneyplus && location.href.toLowerCase().indexOf('amazon') === -1) {
+    if (!this.youtube && !this.netflix && !this.hulu && !this.disneyplus && !(location.href.toLowerCase().indexOf('amazon') !== -1 && this.jQuery('#dv-web-player:visible').length > 0)){
       return;
     }
     if (this.jQuery('#openangelcontrols').length === 0) {
